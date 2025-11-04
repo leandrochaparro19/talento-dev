@@ -1,40 +1,126 @@
+{# Perfil – Editar (estética alineada con vista de perfil) #}
 {% extends 'base.html.twig' %}
+
 {% block title %}Editar perfil | TalentoDev{% endblock %}
 
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .profile-card{
+        border:none;
+        border-radius:18px;
+        background:#fff;
+        box-shadow:0 6px 24px rgba(34,106,255,.07),0 2px 8px rgba(30,40,60,.05);
+    }
+    .profile-header{
+        display:flex;
+        gap:1.25rem;
+        align-items:center;
+    }
+    .profile-avatar{
+        width:110px;height:110px;border-radius:50%;object-fit:cover;background:#e9ecef;flex-shrink:0;
+    }
+    @media(max-width:575px){.profile-avatar{width:88px;height:88px;}}
+    .skill-chip{background:#eaf1fb;color:#226aff;border:none;font-weight:500;}
+    /* Portfolio input groups */
+    .input-group-text i{color:#4361ee;}
+</style>
+{% endblock %}
+
 {% block body %}
-<h2 class="mb-3">Editar perfil</h2>
-
-{# Subida de avatar como form independiente para prototipo #}
-{% include 'perfil/components/avatar_upload.html.twig' with {
-    username: user.username,
-    avatar_url: user.avatar_url
-} %}
-
-<form method="post" class="card p-4 shadow-sm mt-3">
-    <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre completo</label>
-        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.nombre }}" required>
+<div class="profile-card p-4 mb-4">
+    <!-- Cabecera con avatar + título -->
+    <div class="profile-header mb-3">
+        <img src="{{ user.avatar_url }}" alt="Avatar" class="profile-avatar shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name={{ user.nombre|url_encode }}&background=226aff&color=fff'">
+        <div class="flex-grow-1">
+            <h2 class="mb-1 fw-bold">Editar perfil</h2>
+            <div class="text-muted small">{{ user.username }}</div>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label for="descripcion" class="form-label">Sobre mí</label>
-        <textarea id="descripcion" name="descripcion" rows="4" class="form-control">{{ user.descripcion }}</textarea>
-    </div>
-
-    {% include 'perfil/components/skills_form.html.twig' with {
+    {# Formulario de avatar separado (prototipo) #}
+    {% include 'perfil/components/avatar_upload.html.twig' with {
         username: user.username,
-        skills: user.skills
+        avatar_url: user.avatar_url
     } %}
 
-    <div class="mb-3">
-        <label class="form-label">Portfolio (links)</label>
-        <input type="url" name="portfolio[]" class="form-control mb-2" placeholder="https://..." value="{{ user.portfolio[0] ?? '' }}">
-        <input type="url" name="portfolio[]" class="form-control mb-2" placeholder="https://..." value="">
-    </div>
+    <!-- Form principal -->
+    <form method="post" class="mt-4">
+        <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre completo</label>
+            <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.nombre }}" required>
+        </div>
 
-    <div class="d-grid d-sm-flex gap-2">
-        <button type="submit" class="btn btn-primary">Guardar cambios</button>
-        <a href="{{ path('perfil_show', {'username': user.username}) }}" class="btn btn-outline-secondary">Cancelar</a>
-    </div>
-</form>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Sobre mí</label>
+            <textarea id="descripcion" name="descripcion" rows="4" class="form-control">{{ user.descripcion }}</textarea>
+        </div>
+
+        {# Skills chips #}
+        {% include 'perfil/components/skills_form.html.twig' with {
+            username: user.username,
+            skills: user.skills
+        } %}
+
+        {# Portfolio dinámico #}
+        <div class="mb-4">
+            <label class="form-label">Portfolio (links)</label>
+            <div id="portfolioInputs" class="d-flex flex-column gap-2">
+                {% if user.portfolio|length %}
+                    {% for link in user.portfolio %}
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                            <input type="url" name="portfolio[]" class="form-control" placeholder="https://..." value="{{ link }}">
+                            <button type="button" class="btn btn-outline-danger remove-link"><i class="bi bi-trash"></i></button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                        <input type="url" name="portfolio[]" class="form-control" placeholder="https://...">
+                    </div>
+                {% endif %}
+            </div>
+            <button id="addLink" type="button" class="btn btn-sm btn-outline-primary mt-2"><i class="bi bi-plus-circle"></i> Agregar link</button>
+        </div>
+
+        <div class="d-grid d-sm-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Guardar cambios</button>
+            <a href="{{ path('perfil_show', {'username': user.username}) }}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', ()=>{
+            const addBtn = document.getElementById('addLink');
+            const container = document.getElementById('portfolioInputs');
+
+            const createGroup = (value='')=>{
+                const group = document.createElement('div');
+                group.className = 'input-group';
+                group.innerHTML = `
+                    <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                    <input type="url" name="portfolio[]" class="form-control" placeholder="https://..." value="${value}">
+                    <button type="button" class="btn btn-outline-danger remove-link"><i class="bi bi-trash"></i></button>
+                `;
+                return group;
+            };
+
+            addBtn.addEventListener('click', ()=>{
+                container.appendChild(createGroup());
+            });
+
+            container.addEventListener('click', (e)=>{
+                if(e.target.closest('.remove-link')){
+                    const grp = e.target.closest('.input-group');
+                    grp.remove();
+                }
+            });
+        });
+    </script>
 {% endblock %}

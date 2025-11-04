@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{# {% extends 'base.html.twig' %}
 
 {% block title %}TalentoDev — Conectá proyectos y desarrolladores{% endblock %}
 
@@ -170,21 +170,6 @@
                 </div>
             </a>
         </div>
-        {#
-        <!-- Si querés sumar más módulos, agregalos acá y comentá los links hasta que existan las rutas -->
-        <div class="col-12 col-md-6 col-lg-4">
-            <a href="#" class="text-decoration-none text-reset disabled">
-                <div class="module-card p-3 h-100 d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <!-- Icono aquí -->
-                        <h3 class="mb-0">[Nuevo módulo]</h3>
-                    </div>
-                    <p class="mb-2 text-muted small">Descripción del módulo.</p>
-                    <span class="btn btn-sm btn-outline-secondary mt-auto">Próximamente</span>
-                </div>
-            </a>
-        </div>
-        #}
     </div>
 </section>
 
@@ -218,5 +203,293 @@
     </div>
 </section>
 
+{% endblock %} #}
+
+{# Modernized homepage template for TalentoDev #}
+{% extends 'base.html.twig' %}
+
+{% block title %}TalentoDev — Conectá proyectos y desarrolladores{% endblock %}
+
+{# ----------------------------
+   Utility macro for safe routes
+   ---------------------------- #}
+{% macro url(name, params) %}
+    {% if routes[name] is defined and routes[name] %}
+        {{ path(name, params|default({})) }}
+    {% else %}
+        #
+    {% endif %}
+{% endmacro %}
+{% import _self as u %}
+
+{# ----------------------------
+   Stylesheets
+   ---------------------------- #}
+{% block stylesheets %}
+    {{ parent() }}
+
+    {#  Design tokens  #}
+    <style>
+        :root {
+            --td-primary: #4361ee;
+            --td-primary-light: #e9f0fa;
+            --td-surface: #ffffff;
+            --td-surface-alt: #f8fafc;
+            --td-text-main: #223263;
+            --td-text-muted: #64748b;
+            --td-radius-lg: 18px;
+            --td-radius-md: 16px;
+            --td-radius-sm: 10px;
+            --td-shadow-sm: 0 2px 9px rgba(67, 97, 238, 0.05);
+            --td-shadow-md: 0 6px 24px rgba(34, 106, 255, 0.07), 0 1.5px 5px rgba(30, 40, 60, 0.06);
+            --td-shadow-lg: 0 8px 28px rgba(34, 106, 255, 0.08), 0 2px 6px rgba(30, 40, 60, 0.07);
+            --td-gradient: linear-gradient(180deg, var(--td-surface-alt) 0%, var(--td-primary-light) 100%);
+        }
+
+        /* Hero */
+        .hero {
+            background: var(--td-gradient);
+            border: none;
+            border-radius: var(--td-radius-lg);
+            box-shadow: var(--td-shadow-md);
+            padding: 2.75rem 2rem 2.25rem;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate; /* ensure z‑index layering */
+        }
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: -70px;
+            bottom: -60px;
+            width: 240px;
+            aspect-ratio: 1 / 1;
+            background: radial-gradient(circle at 65% 65%, rgba(67,97,238,.15) 0%, transparent 80%);
+            z-index: -1;
+        }
+        .hero h1 {
+            font-size: clamp(1.7rem, 4vw, 2.55rem);
+            font-weight: 700;
+            letter-spacing: -.5px;
+            color: var(--td-text-main);
+        }
+        .hero p {
+            color: var(--td-text-muted);
+            font-size: 1.08rem;
+        }
+        .hero .btn {
+            font-size: 1rem;
+            padding-inline: 1.25rem;
+        }
+
+        /* Module cards */
+        .module-card {
+            border: none;
+            border-radius: var(--td-radius-md);
+            box-shadow: var(--td-shadow-sm);
+            background: var(--td-surface);
+            transition: transform .12s ease-out, box-shadow .12s ease-out, background .12s ease-out;
+            cursor: pointer;
+        }
+        .module-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--td-shadow-lg);
+            background: var(--td-surface-alt);
+        }
+        .module-icon {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+        }
+        .module-card h3 {
+            font-size: 1.09rem;
+            font-weight: 600;
+            color: var(--td-text-main);
+        }
+        .module-card .btn {
+            font-size: .95rem;
+            padding: .45rem 1.15rem;
+        }
+
+        /* How‑it‑works steps */
+        .how-step {
+            border-left: 4px solid rgba(67, 97, 238, .12);
+            padding-left: 1.05rem;
+        }
+        .how-step .fw-semibold {
+            color: var(--td-primary);
+            font-weight: 600;
+        }
+
+        /* Generic card */
+        .card {
+            border: none;
+            border-radius: 13px;
+            box-shadow: var(--td-shadow-sm);
+        }
+
+        .section-title {
+            letter-spacing: .02em;
+            font-weight: 700;
+            color: var(--td-text-main);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 600px) {
+            .hero {
+                padding: 1.5rem 1.25rem;
+            }
+            .module-card {
+                border-radius: var(--td-radius-sm);
+            }
+        }
+    </style>
 {% endblock %}
 
+{# ----------------------------
+   Body
+   ---------------------------- #}
+{% block body %}
+
+<!-- Hero -------------------------------------------->
+<section class="hero mb-5">
+    <div class="hero-content">
+        <h1 class="mb-3">Gestioná tus proyectos y oportunidades freelance sin fricción</h1>
+        <p class="mb-4">
+            Encontrá oportunidades, postulá, chateá, subí entregas y cobrales a tus clientes.<br class="d-none d-lg-block">
+            Todo en un mismo lugar, simple, profesional y rápido.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mb-1">
+            <a href="{{ u.url('proyecto_create') }}" class="btn btn-primary rounded-pill shadow-sm">Publicar proyecto</a>
+            <a href="{{ u.url('proyecto_index') }}" class="btn btn-outline-secondary rounded-pill">Explorar proyectos</a>
+            <a href="{{ u.url('buscador_desarrollador') }}" class="btn btn-outline-secondary rounded-pill">Buscar desarrolladores</a>
+        </div>
+    </div>
+</section>
+
+<!-- Main modules ------------------------------------>
+<section aria-labelledby="modulosPrincipales">
+    <h2 class="section-title h5" id="modulosPrincipales">Tus accesos principales</h2>
+    <div class="row g-3 g-lg-4">
+        {# Proyectos #}
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="{{ u.url('proyecto_index') }}" class="text-decoration-none text-reset">
+                <div class="module-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <svg class="module-icon me-2" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="3" stroke="var(--td-primary)" stroke-width="1.5"/><path d="M7 8h10M7 12h10M7 16h6" stroke="var(--td-primary)" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <h3 class="mb-0">Proyectos</h3>
+                    </div>
+                    <p class="mb-3 text-muted small">Explorá y gestioná proyectos, filtrá por tecnología, presupuesto y estado.</p>
+                    <div class="d-flex gap-2 mt-auto">
+                        <a href="{{ u.url('proyecto_create') }}" class="btn btn-sm btn-primary">Publicar</a>
+                        <a href="{{ u.url('proyecto_index') }}" class="btn btn-sm btn-outline-secondary">Explorar</a>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        {# Desarrolladores #}
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="{{ u.url('buscador_desarrollador') }}" class="text-decoration-none text-reset">
+                <div class="module-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <svg class="module-icon me-2" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="4" stroke="var(--td-primary)" stroke-width="1.5"/><path d="M14 14l5 5" stroke="var(--td-primary)" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <h3 class="mb-0">Desarrolladores</h3>
+                    </div>
+                    <p class="mb-3 text-muted small">Encontrá talento por skills, experiencia y reputación.</p>
+                    <span class="btn btn-sm btn-outline-secondary mt-auto">Buscar</span>
+                </div>
+            </a>
+        </div>
+
+        {# Mensajes #}
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="{{ u.url('chat_inbox') }}" class="text-decoration-none text-reset">
+                <div class="module-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <svg class="module-icon me-2" viewBox="0 0 24 24" fill="none"><path d="M4 6h16v9H8l-4 3V6z" stroke="var(--td-primary)" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                        <h3 class="mb-0">Mensajes</h3>
+                    </div>
+                    <p class="mb-3 text-muted small">Conversá con tus contactos y seguí el avance de tus proyectos.</p>
+                    <span class="btn btn-sm btn-outline-secondary mt-auto">Inbox</span>
+                </div>
+            </a>
+        </div>
+
+        {# Entregables #}
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="{{ u.url('entregable_index') }}" class="text-decoration-none text-reset">
+                <div class="module-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <svg class="module-icon me-2" viewBox="0 0 24 24" fill="none"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="var(--td-primary)" stroke-width="1.5"/><path d="M15 3v6h6" stroke="var(--td-primary)" stroke-width="1.5"/></svg>
+                        <h3 class="mb-0">Entregables</h3>
+                    </div>
+                    <p class="mb-3 text-muted small">Subí entregas, marcá estados y dejá evidencias.</p>
+                    <span class="btn btn-sm btn-outline-secondary mt-auto">Ver entregables</span>
+                </div>
+            </a>
+        </div>
+
+        {# Pagos #}
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="{{ u.url('pago_historial') }}" class="text-decoration-none text-reset">
+                <div class="module-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <svg class="module-icon me-2" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="var(--td-primary)" stroke-width="1.5"/><path d="M3 10h18" stroke="var(--td-primary)" stroke-width="1.5"/><circle cx="8" cy="14" r="1.5" fill="var(--td-primary)"/></svg>
+                        <h3 class="mb-0">Pagos</h3>
+                    </div>
+                    <p class="mb-3 text-muted small">Revisá tu historial de cobros y pagos.</p>
+                    <span class="btn btn-sm btn-outline-secondary mt-auto">Ver historial</span>
+                </div>
+            </a>
+        </div>
+
+        {# Perfil #}
+        <div class="col-12 col-md-6 col-lg-4">
+            <a href="{{ u.url('perfil_show', {'username': app.user ? app.user.username : 'me'}) }}" class="text-decoration-none text-reset">
+                <div class="module-card p-4 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-3">
+                        <svg class="module-icon me-2" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="var(--td-primary)" stroke-width="1.5"/><path d="M5 20c1.8-3.5 5-5 7-5s5.2 1.5 7 5" stroke="var(--td-primary)" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <h3 class="mb-0">Perfil & Reputación</h3>
+                    </div>
+                    <p class="mb-3 text-muted small">Mostrá tu experiencia y gestioná tus calificaciones.</p>
+                    <span class="btn btn-sm btn-outline-secondary mt-auto">Mi perfil</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- How it works ------------------------------------>
+<section class="mt-5" aria-labelledby="comoFunciona">
+    <h2 class="h6 text-muted mb-3" id="comoFunciona">¿Cómo funciona TalentoDev?</h2>
+    <div class="row g-3 g-lg-4">
+        <div class="col-12 col-md-4">
+            <div class="card h-100 p-4">
+                <div class="how-step">
+                    <div class="fw-semibold mb-1">1) Publicá o buscá proyectos</div>
+                    <p class="small text-muted mb-0">Clientes publican proyectos; desarrolladores buscan y filtran por skills o presupuesto.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card h-100 p-4">
+                <div class="how-step">
+                    <div class="fw-semibold mb-1">2) Postulá y chateá</div>
+                    <p class="small text-muted mb-0">Enviá propuestas, gestioná acuerdos y conversá directamente sobre el trabajo.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card h-100 p-4">
+                <div class="how-step">
+                    <div class="fw-semibold mb-1">3) Entregá, cobrales y construí reputación</div>
+                    <p class="small text-muted mb-0">Subí entregas, aprobá y registrá pagos. Cada proyecto suma a tu reputación.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

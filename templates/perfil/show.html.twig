@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{# {% extends 'base.html.twig' %}
 {% block title %}Perfil de {{ perfil.nombre }} | TalentoDev{% endblock %}
 
 {% block body %}
@@ -49,6 +49,117 @@
     <div class="d-md-none mt-3">
         <a href="{{ path('perfil_edit', {'username': perfil.username}) }}" class="btn btn-outline-primary btn-sm">Editar</a>
         <a href="{{ path('perfil_delete', {'username': perfil.username}) }}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+    </div>
+</div>
+{% endblock %} #}
+
+
+{# Perfil – versión minimalista #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ perfil.nombre }} | Perfil · TalentoDev{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .profile-card {
+        border: none;
+        border-radius: 18px;
+        box-shadow: 0 6px 24px rgba(34,106,255,.07), 0 2px 8px rgba(30,40,60,.05);
+        background: #fff;
+    }
+    .profile-header {
+        display: flex;
+        gap: 1.25rem;
+        align-items: center;
+    }
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e9ecef;
+        flex-shrink: 0;
+    }
+    @media(max-width:575px){
+        .profile-avatar{ width: 88px; height: 88px; }
+    }
+    .badge-rep{
+        background:#22c55e1a;
+        color:#22c55e;
+        font-weight:600;
+    }
+    .skill-chip{
+        background:#eaf1fb;
+        color:#226aff;
+        border:none;
+        font-weight:500;
+    }
+    .portfolio-item i{ color:#4361ee; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="profile-card p-4 mb-4">
+    <!-- Encabezado -->
+    <div class="profile-header mb-3">
+        <img src="{{ perfil.avatar_url }}" alt="Avatar" class="profile-avatar shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name={{ perfil.nombre|url_encode }}&background=226aff&color=fff'">
+        <div class="flex-grow-1">
+            <h2 class="mb-1 fw-bold">{{ perfil.nombre }}</h2>
+            <div class="text-muted small text-capitalize">{{ perfil.rol }}</div>
+            <span class="badge badge-rep mt-2">{{ perfil.reputacion }} ★</span>
+        </div>
+        <div class="d-none d-sm-flex gap-2">
+            <a href="{{ path('perfil_edit', {'username': perfil.username}) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+            <a href="{{ path('perfil_delete', {'username': perfil.username}) }}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+        </div>
+    </div>
+
+    <!-- Sobre mí -->
+    <hr>
+    <div class="mb-4">
+        <h5 class="fw-semibold mb-2"><i class="bi bi-person-lines-fill me-1"></i> Sobre mí</h5>
+        <p class="mb-0 text-secondary">{{ perfil.descripcion }}</p>
+    </div>
+
+    <!-- Skills -->
+    <div class="mb-4">
+        <h5 class="fw-semibold mb-2"><i class="bi bi-stars me-1"></i> Skills</h5>
+        {% if perfil.skills|length %}
+            <div class="d-flex flex-wrap gap-2">
+                {% for skill in perfil.skills %}
+                    <span class="badge skill-chip">{{ skill }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            <span class="text-muted">Sin skills registradas.</span>
+        {% endif %}
+    </div>
+
+    <!-- Portfolio -->
+    <div>
+        <h5 class="fw-semibold mb-2"><i class="bi bi-briefcase me-1"></i> Portfolio</h5>
+        <ul class="list-group list-group-flush">
+            {% if perfil.portfolio|length %}
+                {% for p in perfil.portfolio %}
+                    <li class="list-group-item px-0 d-flex align-items-start gap-2">
+                        <i class="bi bi-box-arrow-up-right portfolio-item"></i>
+                        <div>
+                            <a href="{{ p.url }}" class="text-decoration-none fw-medium" target="_blank">{{ p.nombre }}</a>
+                            <div class="small text-muted">{{ p.tecnologias|join(', ') }}</div>
+                        </div>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item px-0 text-muted">Sin proyectos en el portfolio.</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- Acciones móviles -->
+    <div class="d-sm-none d-flex gap-2 mt-4">
+        <a href="{{ path('perfil_edit', {'username': perfil.username}) }}" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-pencil me-1"></i> Editar</a>
+        <a href="{{ path('perfil_delete', {'username': perfil.username}) }}" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-trash"></i></a>
     </div>
 </div>
 {% endblock %}
