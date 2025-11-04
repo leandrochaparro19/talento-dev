@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ proyecto.titulo }} | TalentoDev{% endblock %}
+
+{% block body %}
+<a href="{{ path('proyecto_index') }}" class="btn btn-sm btn-outline-secondary mb-3">← Volver a proyectos</a>
+
+<div class="card p-4 shadow-sm">
+    <div class="d-flex align-items-start gap-3 mb-2">
+        <h3 class="mb-0">{{ proyecto.titulo }}</h3>
+        <span class="badge {{ proyecto.estado == 'Pausado' ? 'bg-warning text-dark' : (proyecto.estado == 'Publicado' ? 'bg-success' : 'bg-secondary') }}">
+            {{ proyecto.estado }}
+        </span>
+        <div class="ms-auto d-flex gap-2">
+            <a href="{{ path('proyecto_edit', {'id': proyecto.id}) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+            <form method="post" action="{{ path('proyecto_pause', {'id': proyecto.id}) }}" class="d-inline">
+                <button class="btn btn-sm btn-outline-warning">Pausar</button>
+            </form>
+            <a href="{{ path('proyecto_delete', {'id': proyecto.id}) }}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+        </div>
+    </div>
+
+    <div class="text-muted mb-3 small">
+        Cliente: <strong>{{ proyecto.cliente }}</strong> · Publicado: {{ proyecto.creado }}
+    </div>
+
+    <p class="mb-3">{{ proyecto.descripcion }}</p>
+
+    <div class="mb-3 d-flex flex-wrap gap-2">
+        {% for t in proyecto.tecnologias %}
+            <span class="badge bg-light text-secondary border">{{ t }}</span>
+        {% endfor %}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <div class="card p-3">
+                <div class="small text-muted">Presupuesto</div>
+                <div class="h5 mb-0">${{ proyecto.presupuesto }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3">
+                <div class="small text-muted">Plazo</div>
+                <div class="h5 mb-0">{{ proyecto.plazo }} días</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="#" class="btn btn-primary">Postularse (mock)</a>
+    </div>
+</div>
+{% endblock %}

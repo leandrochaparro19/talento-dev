@@ -1,0 +1,29 @@
+{# Bloque de skills: CSV + lista con acciones rápidas #}
+<div class="mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <label class="form-label mb-0">Skills</label>
+        {# Actualizar todas a la vez (CSV) #}
+        <form method="post" action="{{ path('skill_update', {'username': username}) }}" class="d-flex gap-2">
+            <input type="text" class="form-control form-control-sm" name="skills"
+                   value="{{ skills|join(', ') }}" placeholder="PHP, Symfony, MySQL">
+            <button class="btn btn-sm btn-outline-primary" type="submit">Actualizar</button>
+        </form>
+    </div>
+
+    <div class="mt-2">
+        {% for s in skills %}
+            <form method="post" action="{{ path('skill_remove', {'username': username, 'skill': s}) }}" class="d-inline">
+                <button class="btn btn-sm btn-secondary mb-1">
+                    {{ s }} ✕
+                </button>
+            </form>
+        {% else %}
+            <span class="text-muted small">Sin skills. Agregá algunas abajo.</span>
+        {% endfor %}
+    </div>
+
+    <form method="post" action="{{ path('skill_add', {'username': username}) }}" class="mt-2 d-flex gap-2">
+        <input type="text" class="form-control form-control-sm" name="skill" placeholder="Nueva skill (ej: Docker)">
+        <button class="btn btn-sm btn-outline-success">Agregar</button>
+    </form>
+</div>

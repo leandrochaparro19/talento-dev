@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}Postularse a {{ proyecto.titulo }} | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-3">Postularse</h2>
+<div class="card p-4 shadow-sm">
+    <div class="mb-3 text-muted small">
+        Proyecto: <a href="{{ path('proyecto_show', {'id': proyecto.id}) }}" class="text-decoration-none">{{ proyecto.titulo }}</a>
+    </div>
+
+    <form method="post">
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <label class="form-label">Propuesta económica ($)</label>
+                <input type="number" name="monto" min="0" class="form-control" placeholder="Ej: 1200" required>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label">Plazo estimado (días)</label>
+                <input type="number" name="plazo" min="1" class="form-control" placeholder="Ej: 14" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Mensaje al cliente</label>
+                <textarea name="mensaje" rows="5" class="form-control" placeholder="Contale brevemente tu enfoque, entregables y experiencia relevante." required></textarea>
+            </div>
+        </div>
+
+        <div class="d-grid d-sm-flex gap-2 mt-3">
+            <button class="btn btn-primary" type="submit">Enviar postulación</button>
+            <a class="btn btn-outline-secondary" href="{{ path('proyecto_show', {'id': proyecto.id}) }}">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

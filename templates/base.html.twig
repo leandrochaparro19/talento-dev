@@ -34,7 +34,7 @@
 
 </head>
 
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
     
     <nav class="navbar navbar-expand-lg bg-white shadow-sm border-bottom mb-4"
         style="background: linear-gradient(90deg, #4361ee 0%, #4cc9f0 100%);">
@@ -56,29 +56,29 @@
     </main>
     {% block javascripts %}{% endblock %}
 
-    <footer class="footer mt-4">
-    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 py-3">
-        <div class="text-muted small">
-            <span class="fw-semibold" style="color: var(--brand-color);">TalentoDev</span>
-            &copy; {{ "now"|date("Y") }}.
-            Desarrollado en UTN-FRSF.
+    <footer class="footer mt-auto">
+        <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 py-3">
+            <div class="text-muted small">
+                <span class="fw-semibold" style="color: var(--brand-color);">TalentoDev</span>
+                &copy; {{ "now"|date("Y") }}.
+                Desarrollado en UTN-FRSF.
+            </div>
+            <ul class="nav flex-row gap-2 small">
+                <li class="nav-item">
+                    <a href="mailto:lchaparro@frsf.utn.edu.ar" class="nav-link px-2 text-muted">Contacto</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link px-2 text-muted">Política de Privacidad</a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://github.com/leandrochaparro19/talento-dev" class="nav-link px-2 text-muted"
+                        target="_blank">
+                        <i class="bi bi-github"></i> GitHub
+                    </a>
+                </li>
+            </ul>
         </div>
-        <ul class="nav flex-row gap-2 small">
-            <li class="nav-item">
-                <a href="mailto:lchaparro@frsf.utn.edu.ar" class="nav-link px-2 text-muted">Contacto</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link px-2 text-muted">Política de Privacidad</a>
-            </li>
-            <li class="nav-item">
-                <a href="https://github.com/leandrochaparro19/talento-dev" class="nav-link px-2 text-muted"
-                    target="_blank">
-                    <i class="bi bi-github"></i> GitHub
-                </a>
-            </li>
-        </ul>
-    </div>
-</footer>
+    </footer>
 
 
 </body>

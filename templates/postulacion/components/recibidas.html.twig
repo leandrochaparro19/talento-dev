@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+{% block title %}Postulaciones recibidas | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-3">Postulaciones recibidas</h2>
+
+{% if items is empty %}
+    <div class="alert alert-info">Sin postulaciones recibidas (mock).</div>
+{% else %}
+    <div class="list-group">
+        {% for it in items %}
+            <div class="list-group-item py-3">
+                <div class="d-flex w-100 justify-content-between">
+                    <div>
+                        <div class="small text-muted">Proyecto</div>
+                        <a href="{{ path('proyecto_show', {'id': it.proyecto.id}) }}" class="fw-semibold text-decoration-none">
+                            {{ it.proyecto.titulo }}
+                        </a>
+                    </div>
+                    <div class="text-end">
+                        {% include 'postulacion/components/estado_postulacion.html.twig' with { estado: it.estado } %}
+                    </div>
+                </div>
+
+                <div class="mt-2 d-flex flex-wrap align-items-center gap-3 small">
+                    <div>
+                        <span class="text-muted">Desarrollador:</span>
+                        <a href="{{ path('perfil_show', {'username': it.desarrollador.username}) }}" class="text-decoration-none">
+                            {{ it.desarrollador.nombre }}
+                        </a>
+                    </div>
+                    <div><strong>${{ it.monto }}</strong></div>
+                    <div>{{ it.plazo }} días</div>
+                    <div class="text-muted">{{ it.fecha }}</div>
+                </div>
+
+                <p class="mt-2 mb-2 small text-muted">{{ it.mensaje }}</p>
+
+                <div class="d-flex gap-2">
+                    <form method="post" action="{{ path('postulacion_aceptar', {'id': it.id}) }}">
+                        <button class="btn btn-sm btn-success" {{ it.estado in ['Aceptada'] ? 'disabled' }}>
+                            Aceptar
+                        </button>
+                    </form>
+                    <form method="post" action="{{ path('postulacion_rechazar', {'id': it.id}) }}">
+                        <button class="btn btn-sm btn-outline-danger" {{ it.estado in ['Rechazada'] ? 'disabled' }}>
+                            Rechazar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

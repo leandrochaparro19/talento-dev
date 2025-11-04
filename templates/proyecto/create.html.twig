@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block title %}Publicar proyecto | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-3">Publicar proyecto</h2>
+
+<form method="post" class="card p-4 shadow-sm">
+    <div class="mb-3">
+        <label for="titulo" class="form-label">Título</label>
+        <input type="text" id="titulo" name="titulo" class="form-control" required value="{{ defaults.titulo }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción</label>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="5" required>{{ defaults.descripcion }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tecnologías requeridas</label>
+        {% include 'proyecto/components/tecnologias_select.html.twig' with {
+            name: 'tecnologias[]',
+            selected: defaults.tecnologias
+        } %}
+        <div class="form-text">Podés seleccionar varias.</div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <label class="form-label">Presupuesto ($)</label>
+            <input type="number" name="presupuesto" class="form-control" min="0" required value="{{ defaults.presupuesto }}">
+        </div>
+        <div class="col-6">
+            <label class="form-label">Plazo estimado (días)</label>
+            <input type="number" name="plazo" class="form-control" min="1" required value="{{ defaults.plazo }}">
+        </div>
+    </div>
+
+    <div class="d-grid d-sm-flex gap-2">
+        <button class="btn btn-primary" type="submit">Publicar</button>
+        <a href="{{ path('proyecto_index') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

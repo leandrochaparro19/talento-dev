@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% block title %}Perfil de {{ perfil.nombre }} | TalentoDev{% endblock %}
+
+{% block body %}
+<div class="card shadow-sm p-4 mb-4">
+    <div class="d-flex align-items-center mb-4">
+        <img src="{{ perfil.avatar_url }}" class="rounded-circle me-4" style="width:80px;height:80px;object-fit:cover;" alt="Avatar">
+        <div>
+            <h3 class="mb-1">{{ perfil.nombre }}</h3>
+            <div class="text-muted small mb-2">{{ perfil.rol|capitalize }}</div>
+            <span class="badge bg-success">Reputación: {{ perfil.reputacion }} ★</span>
+        </div>
+        <div class="ms-auto d-none d-md-flex gap-2">
+            <a href="{{ path('perfil_edit', {'username': perfil.username}) }}" class="btn btn-outline-primary btn-sm">Editar</a>
+            <a href="{{ path('perfil_delete', {'username': perfil.username}) }}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <strong>Sobre mí</strong>
+        <p class="mb-0 text-secondary">{{ perfil.descripcion }}</p>
+    </div>
+
+    <div class="mb-3">
+        <strong>Skills</strong>
+        <div class="mt-1">
+            {% for skill in perfil.skills %}
+                <span class="badge bg-secondary me-1 mb-1">{{ skill }}</span>
+            {% else %}
+                <span class="text-muted">Sin skills registradas.</span>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mb-2">
+        <strong>Portfolio</strong>
+        <ul class="list-group list-group-flush">
+            {% for p in perfil.portfolio %}
+                <li class="list-group-item px-0">
+                    <a href="{{ p.url }}" class="text-decoration-none" target="_blank">{{ p.nombre }}</a>
+                    <span class="small text-muted"> ({{ p.tecnologias|join(', ') }})</span>
+                </li>
+            {% else %}
+                <li class="list-group-item px-0 text-muted">Sin proyectos en el portfolio.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="d-md-none mt-3">
+        <a href="{{ path('perfil_edit', {'username': perfil.username}) }}" class="btn btn-outline-primary btn-sm">Editar</a>
+        <a href="{{ path('perfil_delete', {'username': perfil.username}) }}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+    </div>
+</div>
+{% endblock %}

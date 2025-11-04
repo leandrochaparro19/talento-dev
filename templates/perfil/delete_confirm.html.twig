@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Eliminar cuenta | TalentoDev{% endblock %}
+
+{% block body %}
+<div class="card p-4 shadow-sm text-center">
+    <h2 class="mb-2 text-danger">¿Eliminar cuenta?</h2>
+    <p class="text-muted">Esta acción no se puede deshacer. Toda tu información será eliminada.</p>
+    <form method="post">
+        <button type="submit" class="btn btn-danger me-2">Confirmar eliminación</button>
+        <a href="{{ path('perfil_show', {'username': username}) }}" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

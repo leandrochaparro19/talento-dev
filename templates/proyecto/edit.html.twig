@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+{% block title %}Editar proyecto | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-3">Editar proyecto</h2>
+
+<form method="post" class="card p-4 shadow-sm">
+    <div class="mb-3">
+        <label for="titulo" class="form-label">Título</label>
+        <input type="text" id="titulo" name="titulo" class="form-control" required value="{{ proyecto.titulo }}">
+    </div>
+
+    <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción</label>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="5" required>{{ proyecto.descripcion }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Tecnologías</label>
+        {% include 'proyecto/components/tecnologias_select.html.twig' with {
+            name: 'tecnologias[]',
+            selected: proyecto.tecnologias
+        } %}
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <label class="form-label">Presupuesto ($)</label>
+            <input type="number" name="presupuesto" class="form-control" min="0" required value="{{ proyecto.presupuesto }}">
+        </div>
+        <div class="col-6">
+            <label class="form-label">Plazo (días)</label>
+            <input type="number" name="plazo" class="form-control" min="1" required value="{{ proyecto.plazo }}">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-select">
+            {% for e in ['Borrador','Publicado','Pausado','Finalizado'] %}
+                <option value="{{ e }}" {{ proyecto.estado == e ? 'selected' }}>{{ e }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="d-grid d-sm-flex gap-2">
+        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+        <a href="{{ path('proyecto_show', {'id': proyecto.id}) }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

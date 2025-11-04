@@ -1,0 +1,14 @@
+
+{% extends 'base.html.twig' %}
+{% block title %}Eliminar proyecto | TalentoDev{% endblock %}
+
+{% block body %}
+<div class="card p-4 shadow-sm text-center">
+    <h2 class="mb-2 text-danger">¿Eliminar proyecto?</h2>
+    <p class="text-muted">Esta acción no se puede deshacer.</p>
+    <form method="post">
+        <button type="submit" class="btn btn-danger me-2">Confirmar eliminación</button>
+        <a href="{{ path('proyecto_show', {'id': id}) }}" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

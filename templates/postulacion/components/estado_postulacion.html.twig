@@ -1,0 +1,9 @@
+{# Componente de badge de estado de postulación #}
+{% set estado = estado|default('Enviada') %}
+{% set clase =
+    estado == 'Aceptada'   ? 'bg-success' :
+    estado == 'Rechazada'  ? 'bg-danger'  :
+    estado == 'En revisión'? 'bg-warning text-dark' :
+                             'bg-secondary'
+%}
+<span class="badge {{ clase }}">{{ estado }}</span>

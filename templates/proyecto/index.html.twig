@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% block title %}Proyectos | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-3">Proyectos</h2>
+
+<div class="card p-3 mb-3">
+    <form class="row g-2" method="get" action="{{ path('proyecto_index') }}">
+        <div class="col-12 col-md-4">
+            <label class="form-label small mb-1">Búsqueda</label>
+            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Título o descripción">
+        </div>
+
+        <div class="col-12 col-md-4">
+            <label class="form-label small mb-1">Tecnologías</label>
+            {% include 'proyecto/components/tecnologias_select.html.twig' with {
+                name: 'tecnologias[]',
+                selected: tecnologias
+            } %}
+        </div>
+
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Estado</label>
+            <select class="form-select" name="estado">
+                <option value="" {{ estado == '' ? 'selected' }}>Todos</option>
+                {% for e in ['Borrador','Publicado','Pausado','Finalizado'] %}
+                    <option value="{{ e }}" {{ estado == e ? 'selected' }}>{{ e }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-6 col-md-1">
+            <label class="form-label small mb-1">Min ($)</label>
+            <input type="number" name="presupuesto_min" class="form-control" value="{{ presupuesto_min }}" min="0">
+        </div>
+        <div class="col-6 col-md-1">
+            <label class="form-label small mb-1">Max ($)</label>
+            <input type="number" name="presupuesto_max" class="form-control" value="{{ presupuesto_max }}" min="0">
+        </div>
+
+        <div class="col-12 d-flex gap-2 justify-content-end">
+            <a href="{{ path('proyecto_create') }}" class="btn btn-primary">Publicar proyecto</a>
+            <button class="btn btn-outline-secondary" type="submit">Aplicar filtros</button>
+        </div>
+    </form>
+</div>
+
+{% if proyectos is empty %}
+    <div class="alert alert-info">No se encontraron proyectos con los filtros aplicados (mock).</div>
+{% else %}
+    <div class="list-group">
+        {% for p in proyectos %}
+            <a class="list-group-item list-group-item-action py-3" href="{{ path('proyecto_show', {'id': p.id}) }}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ p.titulo }}</h5>
+                    <span class="badge {{ p.estado == 'Pausado' ? 'bg-warning text-dark' : (p.estado == 'Publicado' ? 'bg-success' : 'bg-secondary') }}">
+                        {{ p.estado }}
+                    </span>
+                </div>
+                <p class="mb-1 text-muted small">{{ p.descripcion }}</p>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="small">
+                        <strong>${{ p.presupuesto }}</strong> · {{ p.plazo }} días
+                    </div>
+                    <div class="small text-muted"> · {{ p.cliente }}</div>
+                    <div class="ms-auto">
+                        {% for t in p.tecnologias %}
+                            <span class="badge bg-light text-secondary border">{{ t }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
