@@ -1,0 +1,78 @@
+{# templates/components/navbar.html.twig #}
+<nav class="navbar site-navbar mb-4 sticky-top" aria-label="Main navigation">
+    <div class="container d-flex align-items-center gap-3">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                <rect x="2" y="2" width="20" height="20" rx="6" fill="#226aff" opacity="0.12"/>
+                <path d="M6 12h12M6 8h12M6 16h8" stroke="#226aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="ms-1">TalentoDev</span>
+        </a>
+
+        {# Search (visible en md+) #}
+        <form class="d-none d-md-flex ms-2 me-auto align-items-center" role="search" action="{{ path('search')|default('#') }}" method="get" aria-label="Buscar">
+            <div class="input-group input-group-sm search-input">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input class="form-control form-control-sm border-start-0" name="q" type="search" placeholder="Buscar proyectos o devs" aria-label="Buscar">
+            </div>
+        </form>
+
+        {# Mobile: small search icon that toggles offcanvas (opcional)
+        <div class="d-md-none ms-auto">
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+
+        
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ path('proyecto_create')|default('#') }}" class="btn btn-sm btn-cta d-none d-sm-inline-block">Publicar proyecto</a>
+
+            {% if app.user %}
+            
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="{{ app.user.avatar_url|default('/assets/avatar-placeholder.svg') }}" alt="{{ app.user.username|default('Usuario') }}" class="avatar-sm me-2">
+                        <div class="d-none d-lg-block text-start">
+                            <div class="fw-semibold small mb-0">{{ app.user.nombre|default(app.user.username) }}</div>
+                            <div class="muted-sm">{{ app.user.rol|default('Miembro') }}</div>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown">
+                        <li><a class="dropdown-item" href="{{ path('perfil_show', {'username': app.user.username|default('me')}) }}">Mi perfil</a></li>
+                        <li><a class="dropdown-item" href="{{ path('perfil_edit', {'username': app.user.username|default('me')}) }}">Editar perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ path('logout') }}">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            {% else %}
+
+                <a href="{{ path('login') }}" class="btn btn-sm btn-outline-secondary">Ingresar</a>
+                <a href="{{ path('register') }}" class="btn btn-sm btn-primary ms-1">Crear cuenta</a>
+            {% endif %}
+        </div>
+    </div>
+
+   
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobileMenuLabel">TalentoDev</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form class="mb-3" role="search" action="{{ path('search')|default('#') }}" method="get">
+                <input class="form-control form-control-sm" name="q" type="search" placeholder="Buscar proyectos o devs">
+            </form>
+            <div class="list-group list-group-flush">
+                <a href="{{ path('proyecto_index')|default('#') }}" class="list-group-item list-group-item-action">Proyectos</a>
+                <a href="{{ path('buscador_desarrollador')|default('#') }}" class="list-group-item list-group-item-action">Desarrolladores</a>
+                {% if app.user %}
+                    <a href="{{ path('perfil_show', {'username': app.user.username}) }}" class="list-group-item list-group-item-action">Mi perfil</a>
+                    <a href="{{ path('logout') }}" class="list-group-item list-group-item-action text-danger">Cerrar sesión</a>
+                {% else %}
+                    <a href="{{ path('login') }}" class="list-group-item list-group-item-action">Ingresar</a>
+                {% endif %}
+            </div>
+        </div>
+    </div> #}
+</nav>

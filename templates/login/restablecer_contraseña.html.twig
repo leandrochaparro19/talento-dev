@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% set content_max_width = '400px' %}
+{% block title %}Restablecer contraseña | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-4 text-center">Restablecer contraseña</h2>
+<form method="post" action="{{ path('recuperar_contraseña', {'token': token}) }}">
+    {% include 'components/form_field.html.twig' with {
+        id: 'password', name: 'password', label: 'Nueva contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'new-password'
+    } %}
+    {% include 'components/form_field.html.twig' with {
+        id: 'password_confirm', name: 'password_confirm', label: 'Confirmar nueva contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'new-password'
+    } %}
+    <button type="submit" class="btn btn-primary w-100">Restablecer</button>
+</form>
+{% endblock %}

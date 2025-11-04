@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+{% set content_max_width = '400px' %}
+{% block title %}Registro | TalentoDev{% endblock %}
+
+{% block body %}
+
+<h2 class="mb-4 text-center">Crear cuenta</h2>
+<form method="post" action="{{ path('register') }}">
+    {% include 'components/form_field.html.twig' with {
+        id: 'name', name: 'name', label: 'Nombre completo', value: '', error: null, required: true
+    } %}
+    {% include 'components/form_field.html.twig' with {
+        id: 'email', name: 'email', label: 'Email', type: 'email', value: '', error: null, required: true, autocomplete: 'email'
+    } %}
+    {% include 'components/form_field.html.twig' with {
+        id: 'password', name: 'password', label: 'Contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'new-password'
+    } %}
+    {% include 'components/form_field.html.twig' with {
+        id: 'password_confirm', name: 'password_confirm', label: 'Confirmar contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'new-password'
+    } %}
+    <div class="mb-3">
+        <label for="role" class="form-label">Registrarme como:</label>
+        <select class="form-select" id="role" name="role" required>
+            <option value="" selected disabled>Seleccionar rol</option>
+            <option value="cliente">Cliente</option>
+            <option value="desarrollador">Desarrollador</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Crear cuenta</button>
+</form>
+<hr>
+<div class="text-center">
+    <span class="small text-muted">¿Ya tenés cuenta?</span>
+    <a href="{{ path('login') }}" class="ms-2">Iniciar sesión</a>
+</div>
+{% endblock %}

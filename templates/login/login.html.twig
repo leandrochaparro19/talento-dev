@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% set content_max_width = '400px' %}
+{% block title %}Iniciar sesión | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-4 text-center">Iniciar sesión</h2>
+<form method="post" action="{{ path('login') }}">
+    {% include 'components/form_field.html.twig' with {
+        id: 'email', name: 'email', label: 'Email', type: 'email', value: '', error: null, required: true, autocomplete: 'email'
+    } %}
+    {% include 'components/form_field.html.twig' with {
+        id: 'password', name: 'password', label: 'Contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'current-password'
+    } %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{ path('restablecer_contraseña') }}" class="small text-decoration-none">¿Olvidaste tu contraseña?</a>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+</form>
+<hr>
+<div class="text-center">
+    <span class="small text-muted">¿No tenés cuenta?</span>
+    <a href="{{ path('register') }}" class="ms-2">Registrate</a>
+</div>
+{% endblock %}

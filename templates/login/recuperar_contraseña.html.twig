@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% set content_max_width = '400px' %}
+{% block title %}Recuperar contraseña | TalentoDev{% endblock %}
+
+{% block body %}
+<h2 class="mb-4 text-center">Recuperar contraseña</h2>
+<form method="post" action="{{ path('forgot_password') }}">
+    {% include 'components/form_field.html.twig' with {
+        id: 'email', name: 'email', label: 'Email', type: 'email', value: '', error: null, required: true, autocomplete: 'email'
+    } %}
+    <button type="submit" class="btn btn-primary w-100">Enviar enlace</button>
+</form>
+<hr>
+<div class="text-center">
+    <a href="{{ path('login') }}" class="small">Volver a iniciar sesión</a>
+</div>
+{% endblock %}

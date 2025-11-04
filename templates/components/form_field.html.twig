@@ -1,0 +1,16 @@
+{# templates/components/form_field.html.twig #}
+<div class="mb-3">
+    <label for="{{ id }}" class="form-label">{{ label }}</label>
+    <input type="{{ type|default('text') }}"
+           class="form-control{% if error %} is-invalid{% endif %}"
+           id="{{ id }}"
+           name="{{ name }}"
+           value="{{ value|default('') }}"
+           autocomplete="{{ autocomplete|default('off') }}"
+           {% if required %}required{% endif %}>
+    {% if error %}
+        <div class="invalid-feedback">
+            {{ error }}
+        </div>
+    {% endif %}
+</div>
