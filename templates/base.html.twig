@@ -11,84 +11,42 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     {% block stylesheets %}
-    <style>
-        :root {
-            /* Brand tokens */
-            --brand-color: #226aff;
-            --body-bg: #f2f5fa; /* gris azulado muy suave */
-            --footer-bg: linear-gradient(180deg, #f6f9ff 60%, #eaf1fb 100%);
-            --footer-border: #226aff1a;
-            --footer-shadow: 0 -6px 24px rgba(34,106,255,0.07);
-            --footer-h: 68px;
-        }
-        body { min-height: 100vh; }               /* ya lo tenés con min-vh-100 */
-        main { flex: 1 0 auto; }   
-        body {
-            background: var(--body-bg);
-        }
-
-        /* Dark-mode overrides */
-        html.dark-active {
-            --body-bg: #0d1117;
-            --footer-bg: linear-gradient(180deg, #1a1f2b 60%, #111622 100%);
-            --footer-border: #ffffff14;
-        }
-
-        .footer{
-            flex: 0 0 var(--footer-h);
-            height: var(--footer-h);
-            min-height: var(--footer-h);
-            max-height: var(--footer-h);
-            background: var(--footer-bg);
-            border-top: 2.5px solid var(--footer-border);
-            padding-top: 0;
-            padding-bottom: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-        }
-
-      
-        .footer > .container{
-            height: 100%;
-            align-items: center !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-        }
-        .footer a.nav-link:hover {
-            color: var(--brand-color) !important;
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
     {% endblock %}
 </head>
 
 <body class="d-flex flex-column min-vh-100">
 
     {# ---------------- NAVBAR ---------------- #}
-    <nav class="navbar navbar-expand-lg shadow-sm border-bottom mb-4" style="background: linear-gradient(90deg, #4361ee 0%, #4cc9f0 100%);">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-white d-flex align-items-center gap-2" href="/">
-                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24">
-                    <rect width="24" height="24" rx="6" fill="#fff" opacity="0.15"/>
-                    <path fill="#fff" d="M6.5 17l5.5-10 5.5 10h-11zm1.85-1.2h7.3L12 7.5l-3.65 8.3z"/>
+    <nav class="navbar navbar-expand-lg navbar-gradient shadow-sm border-0 mb-4">
+        <div class="container-fluid px-3">
+            <div class="d-flex align-items-center w-100 justify-content-between">
+            
+            {# IZQUIERDA: marca #}
+            <a class="navbar-brand text-white fw-bold d-flex align-items-center gap-2" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <rect width="24" height="24" rx="6" fill="#fff" opacity="0.15"/>
+                <path fill="#fff" d="M6.5 17l5.5-10 5.5 10h-11zm1.85-1.2h7.3L12 7.5l-3.65 8.3z"/>
                 </svg>
-                TalentoDev
+                <span>TalentoDev</span>
             </a>
 
-            <div class="d-flex align-items-center ms-auto gap-2">
-                {# Dark mode toggle #}
-                <button id="themeToggle" class="btn btn-sm btn-outline-light d-flex align-items-center" aria-label="Toggle dark mode">
-                    <i class="bi bi-moon"></i>
+            {# DERECHA: acciones #}
+            <div class="d-flex align-items-center nav-actions">
+                <button id="themeToggle" class="btn btn-ghost" aria-label="Cambiar tema" title="Cambiar tema">
+                <i class="bi bi-moon"></i>
                 </button>
-
-                {# Current user / profile #}
-                <a href="{{ path('perfil_show', {'username': app.user ? app.user.username : 'me'}) }}" class="btn btn-sm btn-outline-light d-flex align-items-center" aria-label="Mi perfil">
-                    <i class="bi bi-person-circle"></i>
+                <a href="{{ path('perfil_show', {'username': app.user ? app.user.username : 'me'}) }}"
+                class="btn btn-ghost" aria-label="Mi perfil" title="Mi perfil">
+                <i class="bi bi-person-circle"></i>
                 </a>
+            </div>
+
             </div>
         </div>
     </nav>
+
+
 
     {# ---------------- MAIN CONTENT ---------------- #}
     <main class="container flex-grow-1 d-flex flex-column" style="max-width: {{ content_max_width|default('1200px') }};">
@@ -98,27 +56,32 @@
 
     {# ---------------- FOOTER ---------------- #}
     <footer class="footer mt-3">
-        <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 py-3">
-            <div class="text-muted small">
+        <div class="container-fluid px-3">
+            <div class="d-flex align-items-center justify-content-between w-100">
+            <!-- Izquierda: marca -->
+            <div class="text-muted small lh-sm">
                 <span class="fw-semibold" style="color: var(--brand-color);">TalentoDev</span>
-                &copy; {{ "now"|date("Y") }}.
-                Desarrollado en UTN-FRSF.
+                &copy; {{ "now"|date("Y") }}. Desarrollado en UTN-FRSF.
             </div>
-            <ul class="nav flex-row gap-2 small">
+
+            <!-- Derecha: enlaces -->
+            <ul class="nav gap-2 small mb-0">
                 <li class="nav-item">
-                    <a href="mailto:lchaparro@frsf.utn.edu.ar" class="nav-link px-2 text-muted">Contacto</a>
+                <a href="mailto:lchaparro@frsf.utn.edu.ar" class="nav-link px-2 text-muted">Contacto</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link px-2 text-muted">Política de Privacidad</a>
+                <a href="#" class="nav-link px-2 text-muted">Política de Privacidad</a>
                 </li>
                 <li class="nav-item">
-                    <a href="https://github.com/leandrochaparro19/talento-dev" class="nav-link px-2 text-muted" target="_blank">
-                        <i class="bi bi-github"></i> GitHub
-                    </a>
+                <a href="https://github.com/leandrochaparro19/talento-dev" class="nav-link px-2 text-muted" target="_blank">
+                    <i class="bi bi-github"></i> GitHub
+                </a>
                 </li>
             </ul>
+            </div>
         </div>
     </footer>
+
 
     {# ---------------- JAVASCRIPTS ---------------- #}
     {% block javascripts %}

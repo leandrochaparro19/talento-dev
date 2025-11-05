@@ -1,76 +1,65 @@
-{# Perfil – Editar (estética alineada con vista de perfil) #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}Editar perfil | TalentoDev{% endblock %}
 
-{% block stylesheets %}
-{{ parent() }}
-<style>
-    .profile-card{
-        border:none;
-        border-radius:18px;
-        background:#fff;
-        box-shadow:0 6px 24px rgba(34,106,255,.07),0 2px 8px rgba(30,40,60,.05);
-    }
-    .profile-header{
-        display:flex;
-        gap:1.25rem;
-        align-items:center;
-    }
-    .profile-avatar{
-        width:110px;height:110px;border-radius:50%;object-fit:cover;background:#e9ecef;flex-shrink:0;
-    }
-    @media(max-width:575px){.profile-avatar{width:88px;height:88px;}}
-    .skill-chip{background:#eaf1fb;color:#226aff;border:none;font-weight:500;}
-    /* Portfolio input groups */
-    .input-group-text i{color:#4361ee;}
-</style>
-{% endblock %}
-
 {% block body %}
-<div class="profile-card p-4 mb-4">
-    <!-- Cabecera con avatar + título -->
-    <div class="profile-header mb-3">
-        <img src="{{ user.avatar_url }}" alt="Avatar" class="profile-avatar shadow-sm" onerror="this.src='https://ui-avatars.com/api/?name={{ user.nombre|url_encode }}&background=226aff&color=fff'">
-        <div class="flex-grow-1">
-            <h2 class="mb-1 fw-bold">Editar perfil</h2>
-            <div class="text-muted small">{{ user.username }}</div>
-        </div>
-    </div>
+<div class="profile-card">
+  <div class="profile-hero"></div>
 
-    {# Formulario de avatar separado (prototipo) #}
-    {% include 'perfil/components/avatar_upload.html.twig' with {
+  <div class="p-4 pb-0">
+    <div class="d-flex align-items-start gap-3 flex-wrap">
+      <div class="avatar-wrap">
+        <img src="{{ user.avatar_url }}"
+             class="profile-avatar"
+             alt="Avatar de {{ user.nombre }}"
+             onerror="this.src='https://ui-avatars.com/api/?name={{ user.nombre|url_encode }}&background=226aff&color=fff'">
+      </div>
+
+      <div class="flex-grow-1">
+        <h1 class="h4 mb-1 fw-bold">Editar perfil</h1>
+        <div class="text-muted small">{{ user.username }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-4 pt-3">
+    
+
+    {# Formulario de avatar separado #}
+    {# {% include 'perfil/components/avatar_upload.html.twig' with {
         username: user.username,
         avatar_url: user.avatar_url
-    } %}
+    } %} #}
 
-    <!-- Form principal -->
     <form method="post" class="mt-4">
+        
         <div class="mb-3">
-            <label for="nombre" class="form-label">Nombre completo</label>
+            <label for="nombre" class="form-label fw-medium">Nombre completo</label>
             <input type="text" class="form-control" id="nombre" name="nombre" value="{{ user.nombre }}" required>
         </div>
-
         <div class="mb-3">
-            <label for="descripcion" class="form-label">Sobre mí</label>
+            <label for="descripcion" class="form-label fw-medium">Sobre mí</label>
             <textarea id="descripcion" name="descripcion" rows="4" class="form-control">{{ user.descripcion }}</textarea>
         </div>
 
-        {# Skills chips #}
-        {% include 'perfil/components/skills_form.html.twig' with {
-            username: user.username,
-            skills: user.skills
-        } %}
+        <div class="mt-4 pt-4 border-top">
+            {% include 'perfil/components/skills_form.html.twig' with {
+                username: user.username,
+                skills: user.skills
+            } %}
+        </div>
 
-        {# Portfolio dinámico #}
-        <div class="mb-4">
-            <label class="form-label">Portfolio (links)</label>
+        <div class="mt-4 pt-4 border-top">
+            <label class="form-label h6 mb-2"><i class="bi bi-briefcase me-1"></i> Portfolio</label>
             <div id="portfolioInputs" class="d-flex flex-column gap-2">
                 {% if user.portfolio|length %}
-                    {% for link in user.portfolio %}
+                    {% for p in user.portfolio %}
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
-                            <input type="url" name="portfolio[]" class="form-control" placeholder="https://..." value="{{ link }}">
+                            {# Cambiamos el 'link' por 'p.url' si es un objeto, o lo dejamos como 'p' si es un array simple #}
+                            {# Asumiendo que 'portfolio' es un array de strings como en tu original #}
+                            <input type="url" name="portfolio[]" class="form-control" placeholder="https://..." value="{{ p }}">
                             <button type="button" class="btn btn-outline-danger remove-link"><i class="bi bi-trash"></i></button>
                         </div>
                     {% endfor %}
@@ -84,13 +73,15 @@
             <button id="addLink" type="button" class="btn btn-sm btn-outline-primary mt-2"><i class="bi bi-plus-circle"></i> Agregar link</button>
         </div>
 
-        <div class="d-grid d-sm-flex gap-2">
-            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Guardar cambios</button>
-            <a href="{{ path('perfil_show', {'username': user.username}) }}" class="btn btn-outline-secondary">Cancelar</a>
+        <div class="mt-4 pt-4 border-top">
+            <div class="d-grid d-sm-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Guardar cambios</button>
+                <a href="{{ path('perfil_show', {'username': user.username}) }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
         </div>
     </form>
+  </div>
 </div>
-
 {% endblock %}
 
 {% block javascripts %}

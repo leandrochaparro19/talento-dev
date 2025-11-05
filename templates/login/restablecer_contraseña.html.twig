@@ -1,16 +1,52 @@
 {% extends 'base.html.twig' %}
-{% set content_max_width = '400px' %}
+{% set content_max_width = '500px' %}
 {% block title %}Restablecer contraseña | TalentoDev{% endblock %}
 
 {% block body %}
-<h2 class="mb-4 text-center">Restablecer contraseña</h2>
-<form method="post" action="{{ path('recuperar_contraseña', {'token': token}) }}">
-    {% include 'components/form_field.html.twig' with {
-        id: 'password', name: 'password', label: 'Nueva contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'new-password'
-    } %}
-    {% include 'components/form_field.html.twig' with {
-        id: 'password_confirm', name: 'password_confirm', label: 'Confirmar nueva contraseña', type: 'password', value: '', error: null, required: true, autocomplete: 'new-password'
-    } %}
-    <button type="submit" class="btn btn-primary w-100">Restablecer</button>
-</form>
+<br><br><br>
+<div class="card auth-card mt-4">
+  <div class="auth-header">
+    <div class="brand-mark">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="6" fill="#226aff" opacity="0.15"/>
+        <path d="M6 12h12M6 8h12M6 16h8" stroke="#226aff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1 class="h4 mb-1">Restablecer contraseña</h1>
+    <p class="auth-subtle mb-0">Ingresá una nueva contraseña para tu cuenta.</p>
+  </div>
+
+  <div class="p-4">
+    <form method="post" action="{{ path('recuperar_contraseña', {'token': token}) }}" novalidate>
+      <div class="form-floating mb-3">
+        <input type="password"
+               class="form-control"
+               id="password"
+               name="password"
+               placeholder="••••••••"
+               autocomplete="new-password"
+               required>
+        <label for="password">Nueva contraseña</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input type="password"
+               class="form-control"
+               id="password_confirm"
+               name="password_confirm"
+               placeholder="••••••••"
+               autocomplete="new-password"
+               required>
+        <label for="password_confirm">Confirmar nueva contraseña</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Restablecer contraseña</button>
+    </form>
+  </div>
+</div>
+
+<div class="text-center mt-3">
+  <a href="{{ path('login') }}" class="small text-decoration-none">Volver a iniciar sesión</a>
+</div>
 {% endblock %}
+

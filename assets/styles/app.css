@@ -1,3 +1,167 @@
-body {
-    background-color: skyblue;
+/* BASE CSS */
+
+:root {
+            /* Brand tokens */
+            --brand-color: #226aff;
+            --body-bg: #f2f5fa; /* gris azulado muy suave */
+            --footer-bg: linear-gradient(180deg, #f6f9ff 60%, #eaf1fb 100%);
+            --footer-border: #226aff1a;
+            --footer-shadow: 0 -6px 24px rgba(34,106,255,0.07);
+            --footer-h: 68px;
+        }
+        body { min-height: 100vh; }               /* ya lo tenés con min-vh-100 */
+        main { flex: 1 0 auto; }   
+        body {
+            background: var(--body-bg);
+        }
+
+        /* Dark-mode overrides */
+        html.dark-active {
+            --body-bg: #0d1117;
+            --footer-bg: linear-gradient(180deg, #1a1f2b 60%, #111622 100%);
+            --footer-border: #ffffff14;
+        }
+        .navbar-gradient{
+  background: linear-gradient(90deg, #4361ee 0%, #4cc9f0 100%);
 }
+
+        /* Botones “glass/ghost” modernos en el navbar */
+        .nav-actions{ gap: .5rem; }
+        .btn-ghost{
+        --btn-bg: hsla(0,0%,100%,.10);
+        --btn-br: hsla(0,0%,100%,.28);
+        color: #fff;
+        background: var(--btn-bg);
+        border: 1px solid var(--btn-br);
+        border-radius: 999px;
+        padding: .45rem .6rem;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(2px);
+        transition: transform .12s ease, background .12s ease, border-color .12s ease;
+        }
+        .btn-ghost .bi{ font-size: 1.05rem; }
+        .btn-ghost:hover{
+        background: hsla(0,0%,100%,.18);
+        border-color: hsla(0,0%,100%,.38);
+        transform: translateY(-1px);
+        }
+        .btn-ghost:focus-visible{
+        outline: none;
+        box-shadow: 0 0 0 .2rem rgba(255,255,255,.28);
+        }
+
+
+        .footer{
+            flex: 0 0 var(--footer-h);
+            height: var(--footer-h);
+            min-height: var(--footer-h);
+            max-height: var(--footer-h);
+            background: var(--footer-bg);
+            border-top: 2.5px solid var(--footer-border);
+            padding-top: 0;
+            padding-bottom: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+      
+        .footer > .container{
+            height: 100%;
+            align-items: center !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .footer a.nav-link:hover {
+            color: var(--brand-color) !important;
+            text-decoration: underline;
+        }
+
+        /*  LOGIN */
+
+    .auth-card {
+      overflow: hidden;
+      border: 1px solid rgba(30,40,60,.06);
+      box-shadow: 0 10px 24px rgba(30,40,60,.06);
+      border-radius: 16px;
+    }
+    .auth-header {
+      background: linear-gradient(180deg, #ffffff 0%, #f6f8fa 60%);
+      border-bottom: 1px solid rgba(34,106,255,.12);
+      padding: 1.25rem 1.25rem 1rem;
+      text-align: center;
+    }
+    .auth-header .brand-mark {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(34,106,255,.08);
+      margin-bottom: .5rem;
+    }
+    .auth-subtle {
+      color: #6c757d; font-size: .95rem;
+    }
+
+    /* PERFILES DE USUARIO */
+    :root{ --brand-color:#226aff; }
+  .profile-card{
+    border:1px solid rgba(30,40,60,.06);
+    border-radius:18px;
+    box-shadow:0 8px 24px rgba(30,40,60,.07);
+    overflow:hidden;
+    background:#fff;
+  }
+  .profile-hero{
+    background: linear-gradient(180deg, #ffffff 0%, #f6f8fa 60%);
+    border-bottom:1px solid rgba(34,106,255,.12);
+    height:60px; /* Reducido de 110px */
+  }
+  .avatar-wrap{ margin-top:-50px; } /* Ajustado de -42px */
+  
+  .profile-avatar{
+    width:100px;height:100px;object-fit:cover;border-radius:999px; /* Reducido de 110px */
+    box-shadow:0 8px 22px rgba(34,106,255,.15);
+    background:#e9ecef;border:3px solid #fff;
+  }
+  @media(max-width:575px){ 
+    .profile-avatar{ width:80px;height:80px; } /* Reducido de 90px */
+    .avatar-wrap{ margin-top:-40px; } /* Ajustado de -34px */
+  }
+
+  .rep-badge{
+    background:#22c55e1a;color:#22c55e;border:1px solid #22c55e33;
+    font-weight:600;
+  }
+  .chip{
+    border:1px solid #dbe6ff;
+    background:#eff5ff;
+    color:var(--brand-color);
+    font-weight:500;
+  }
+  .meta-kpi .card{ border:1px solid rgba(30,40,60,.06); }
+
+  /* -- NUEVOS ESTILOS PARA PORTFOLIO -- */
+  .project-card {
+    border: 1px solid rgba(30, 40, 60, .08);
+    border-radius: 12px;
+    background: #fafbff;
+    transition: all 0.2s ease;
+  }
+  .project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 40, 60, .08);
+  }
+  .project-icon {
+    font-size: 1.5rem;
+    color: var(--brand-color);
+    background: #eff5ff;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
