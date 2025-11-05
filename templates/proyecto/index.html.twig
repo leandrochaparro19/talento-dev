@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{# {% extends 'base.html.twig' %}
 {% block title %}Proyectos | TalentoDev{% endblock %}
 
 {% block body %}
@@ -73,4 +73,138 @@
         {% endfor %}
     </div>
 {% endif %}
+{% endblock %} #}
+
+
+
+
+
+{#  GEMINIS  #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Proyectos | TalentoDev{% endblock %}
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
+
 {% endblock %}
+
+{% block body %}
+<h2 class="mb-3">Proyectos</h2>
+
+<div class="card p-3 mb-3">
+    <form class="row g-2" method="get" action="{{ path('proyecto_index') }}">
+        <div class="col-12 col-md-4">
+            <label class="form-label small mb-1">Búsqueda</label>
+            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Título o descripción">
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label small mb-1">Tecnologías</label>
+            {% include 'proyecto/components/tecnologias_select.html.twig' with {
+                name: 'tecnologias[]',
+                selected: tecnologias
+            } %}
+        </div>
+        <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Estado</label>
+            <select class="form-select" name="estado">
+                <option value="" {{ estado == '' ? 'selected' }}>Todos</option>
+                {% for e in ['Borrador','Publicado','Pausado','Finalizado'] %}
+                    <option value="{{ e }}" {{ estado == e ? 'selected' }}>{{ e }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-1">
+            <label class="form-label small mb-1">Min ($)</label>
+            <input type="number" name="presupuesto_min" class="form-control" value="{{ presupuesto_min }}" min="0">
+        </div>
+        <div class="col-6 col-md-1">
+            <label class="form-label small mb-1">Max ($)</label>
+            <input type="number" name="presupuesto_max" class="form-control" value="{{ presupuesto_max }}" min="0">
+        </div>
+        <div class="col-12 d-flex gap-2 justify-content-end">
+            <a href="{{ path('proyecto_create') }}" class="btn btn-primary">Publicar proyecto</a>
+            <button class="btn btn-outline-secondary" type="submit">Aplicar filtros</button>
+        </div>
+    </form>
+</div>
+
+{% if proyectos is empty %}
+    <div class="alert alert-info">No se encontraron proyectos con los filtros aplicados.</div>
+{% else %}
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="ps-3">Proyecto</th>
+                        <th scope="col">Detalles</th>
+                        <th scope="col">Tecnologías</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col" class="pe-3">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in proyectos %}
+                        <tr>
+             
+                            <td class="ps-3">
+                                <a href="{{ path('proyecto_show', {'id': p.id}) }}" class="fw-bold text-decoration-none">{{ p.titulo }}</a>
+                                <p class="small text-muted mb-0">{{ p.descripcion | slice(0, 100) ~ (p.descripcion|length > 100 ? '...' : '') }}</p>
+                            </td>
+                            
+                    
+                            <td>
+                                <div class="fw-bold">${{ p.presupuesto }}</div>
+                                <div class="small text-muted">{{ p.plazo }} días</div>
+                                <div class="small text-muted">por {{ p.cliente }}</div>
+                            </td>
+                            
+         
+                            <td style="min-width: 200px;">
+                                {% for t in p.tecnologias %}
+                                    <span class="badge bg-light text-dark border me-1 mb-1">{{ t }}</span>
+                                {% endfor %}
+                            </td>
+                            
+      
+                            <td>
+                                <span class="badge {{ p.estado == 'Pausado' ? 'bg-warning text-dark' : (p.estado == 'Publicado' ? 'bg-success' : (p.estado == 'Borrador' ? 'bg-secondary' : 'bg-info text-dark')) }}">
+                                    {{ p.estado }}
+                                </span>
+                            </td>
+                            
+                     
+                            <td class="text-end pe-3">
+                                <a href="{{ path('proyecto_show', {'id': p.id}) }}" class="btn btn-sm btn-outline-primary">
+                                    Ver
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+<script>
+        // Espera a que el documento esté listo
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Inicializa Tom-Select en el <select> con id 'select-tecnologias'
+            new TomSelect('#select-tecnologias', {
+                plugins: ['remove_button'], // Permite borrar etiquetas con una 'x'
+                create: false, // Evita que el usuario cree nuevas etiquetas (opcional)
+                persist: false // No persiste las opciones creadas (útil si create=true)
+            });
+
+        });
+    </script>
+{% endblock %}
+

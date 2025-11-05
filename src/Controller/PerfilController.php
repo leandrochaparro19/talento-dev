@@ -65,6 +65,23 @@ class PerfilController extends AbstractController
             return $this->redirectToRoute('homepage');
         }
 
+        //Ejemplos de alerrtas para mostrar en el sistema
+        $this->addFlash(
+            'success',
+            '¡Tu perfil se ha actualizado correctamente!'
+        );
+        $this->addFlash(
+            'info',
+            'El sistema va a estar en mantenimiento a partir de las 14hs.'
+        );
+        $this->addFlash(
+            'warning',
+            'Tu foto de perfil no se pudo actualizar, pero tus otros datos sí se guardaron.'
+        );
+        $this->addFlash(
+            'danger',
+            'Error: No se pudo guardar el perfil. El nombre de usuario ya existe.'
+        );
         return $this->render('perfil/delete_confirm.html.twig', [
             'username' => $username,
         ]);

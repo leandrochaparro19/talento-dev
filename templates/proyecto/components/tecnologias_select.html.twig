@@ -1,0 +1,26 @@
+{# Componente de selección múltiple de tecnologías (Bootstrap 5) #}
+{# proyecto/components/tecnologias_select.html.twig #}
+
+{% set opciones = [
+    'PHP','Symfony','Laravel','Node','React','Vue','Angular',
+    'MySQL','PostgreSQL','MongoDB','Docker'
+] %}
+
+<select 
+    id="select-tecnologias" 
+    class="form-select" 
+    name="{{ name }}" 
+    multiple 
+    placeholder="Selecciona una o más..."
+>
+    {# Dejamos un option vacío para el placeholder #}
+    <option value=""></option>
+    
+    {% for opt in opciones %}
+        <option value="{{ opt }}" {{ (selected is defined and opt in selected) ? 'selected' : '' }}>
+            {{ opt }}
+        </option>
+    {% endfor %}
+</select>
+
+{# Ya no necesitamos el texto de ayuda de "Ctrl + Clic" #}
