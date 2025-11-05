@@ -80,7 +80,7 @@
 
 
 {#  GEMINIS  #}
-{% extends 'base.html.twig' %}
+{# {% extends 'base.html.twig' %}
 
 {% block title %}Proyectos | TalentoDev{% endblock %}
 {% block stylesheets %}
@@ -123,7 +123,6 @@
             <input type="number" name="presupuesto_max" class="form-control" value="{{ presupuesto_max }}" min="0">
         </div>
         <div class="col-12 d-flex gap-2 justify-content-end">
-            {# <a href="{{ path('proyecto_create') }}" class="btn btn-primary">Publicar proyecto</a> #}
             <button class="btn btn-outline-primary" type="submit">Aplicar filtros</button>
             <a href="{{ path('proyecto_create') }}" class="btn btn-outline-secondary">Limpiar</a>
         </div>
@@ -210,5 +209,286 @@
 
         });
     </script>
+{% endblock %} #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Proyectos | TalentoDev{% endblock %}
+
+{% block stylesheets %}
+  {{ parent() }}
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
 {% endblock %}
 
+{% block body %}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div>
+    <h2 class="mb-0">Proyectos</h2>
+    <div class="text-muted small">Encontrados: <span class="fw-semibold">{{ proyectos|length }}</span></div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ path('proyecto_create') }}" class="btn btn-primary">
+      <i class="bi bi-plus-lg me-1"></i> Publicar proyecto
+    </a>
+    <div class="btn-group" role="group" aria-label="Cambiar vista">
+      <button type="button" class="btn btn-outline-secondary active" id="btn-view-table" title="Vista tabla">
+        <i class="bi bi-table"></i>
+      </button>
+      <button type="button" class="btn btn-outline-secondary" id="btn-view-cards" title="Vista tarjetas">
+        <i class="bi bi-grid-3x3-gap"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="{{ path('proyecto_index') }}">
+      <div class="col-12 col-md-4">
+        <label class="form-label small mb-1">Búsqueda</label>
+        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Título o descripción">
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label small mb-1">Tecnologías</label>
+        {# Asegurate que el include soporte 'id' y lo aplique al <select> #}
+        {% include 'proyecto/components/tecnologias_select.html.twig' with {
+          id: 'select-tecnologias',
+          name: 'tecnologias[]',
+          selected: tecnologias
+        } %}
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">Estado</label>
+        <select class="form-select" name="estado">
+          <option value="" {{ estado == '' ? 'selected' }}>Todos</option>
+          {% for e in ['Borrador','Publicado','Pausado','Finalizado'] %}
+            <option value="{{ e }}" {{ estado == e ? 'selected' }}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">Ordenar</label>
+        <select class="form-select" name="sort">
+          <option value="" {{ sort is not defined or sort == '' ? 'selected' }}>Más recientes</option>
+          <option value="presupuesto_desc" {{ sort == 'presupuesto_desc' ? 'selected' }}>Mayor presupuesto</option>
+          <option value="presupuesto_asc"  {{ sort == 'presupuesto_asc'  ? 'selected' }}>Menor presupuesto</option>
+          <option value="plazo_asc"        {{ sort == 'plazo_asc'        ? 'selected' }}>Menor plazo</option>
+          <option value="plazo_desc"       {{ sort == 'plazo_desc'       ? 'selected' }}>Mayor plazo</option>
+        </select>
+      </div>
+
+      <div class="col-12">
+        <a class="small text-decoration-none" data-bs-toggle="collapse" href="#filtrosAvanzados" role="button" aria-expanded="false" aria-controls="filtrosAvanzados">
+          <i class="bi bi-sliders me-1"></i> Más filtros
+        </a>
+      </div>
+
+      <div class="collapse" id="filtrosAvanzados">
+        <div class="row g-2 mt-1">
+          <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Min ($)</label>
+            <input type="number" name="presupuesto_min" class="form-control" value="{{ presupuesto_min }}" min="0" inputmode="numeric">
+          </div>
+          <div class="col-6 col-md-2">
+            <label class="form-label small mb-1">Max ($)</label>
+            <input type="number" name="presupuesto_max" class="form-control" value="{{ presupuesto_max }}" min="0" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+        <button class="btn btn-outline-primary" type="submit">
+          <i class="bi bi-funnel me-1"></i> Aplicar filtros
+        </button>
+        {# limpiar vuelve al index sin parámetros #}
+        <a href="{{ path('proyecto_index') }}" class="btn btn-outline-secondary">
+          Limpiar
+        </a>
+      </div>
+    </form>
+
+    {# Chips de filtros activos (solo informativos) #}
+    {% set chips = [] %}
+    {% if q %}{% set chips = chips|merge(['Búsqueda: "'~q~'"']) %}{% endif %}
+    {% if estado %}{% set chips = chips|merge(['Estado: '~estado]) %}{% endif %}
+    {% if presupuesto_min %}{% set chips = chips|merge(['Min: $'~presupuesto_min]) %}{% endif %}
+    {% if presupuesto_max %}{% set chips = chips|merge(['Max: $'~presupuesto_max]) %}{% endif %}
+    {% if tecnologias is iterable and tecnologias|length > 0 %}
+      {% set chips = chips|merge(['Tech: '~(tecnologias|join(', '))]) %}
+    {% endif %}
+    {% if chips|length > 0 %}
+      <div class="pt-3 d-flex flex-wrap gap-2">
+        {% for c in chips %}
+          <span class="badge rounded-pill text-bg-light border">{{ c }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if proyectos is empty %}
+  <div class="alert alert-info d-flex align-items-center" role="alert">
+    <i class="bi bi-search me-2"></i>
+    <div>No se encontraron proyectos con los filtros aplicados.</div>
+  </div>
+{% else %}
+
+  {# VISTA TABLA #}
+  <div id="view-table">
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-3">Proyecto</th>
+              <th scope="col">Detalles</th>
+              <th scope="col">Tecnologías</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="pe-3 text-end">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for p in proyectos %}
+            <tr>
+              <td class="ps-3">
+                <a href="{{ path('proyecto_show', {'id': p.id}) }}" class="fw-semibold text-decoration-none">{{ p.titulo }}</a>
+                <p class="small text-muted mb-0">
+                  {{ p.descripcion | slice(0, 120) ~ (p.descripcion|length > 120 ? '…' : '') }}
+                </p>
+              </td>
+              <td>
+                <div class="fw-semibold">${{ p.presupuesto }}</div>
+                <div class="small text-muted"><i class="bi bi-clock me-1"></i>{{ p.plazo }} días</div>
+                <div class="small text-muted"><i class="bi bi-person me-1"></i>por {{ p.cliente }}</div>
+              </td>
+              <td style="min-width: 220px;">
+                {% for t in p.tecnologias %}
+                  <span class="badge bg-light text-dark border me-1 mb-1">{{ t }}</span>
+                {% endfor %}
+              </td>
+              <td>
+                {% set badge =
+                  p.estado == 'Publicado' ? 'bg-success' :
+                  (p.estado == 'Pausado' ? 'bg-warning text-dark' :
+                  (p.estado == 'Borrador' ? 'bg-secondary' : 'bg-info text-dark')) %}
+                <span class="badge {{ badge }}">{{ p.estado }}</span>
+              </td>
+              <td class="text-end pe-3">
+                <a href="{{ path('proyecto_show', {'id': p.id}) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye me-1"></i> Ver
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# VISTA TARJETAS #}
+  <div id="view-cards" class="d-none">
+    <div class="row g-3">
+      {% for p in proyectos %}
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <a href="{{ path('proyecto_show', {'id': p.id}) }}" class="h6 text-decoration-none mb-0 flex-grow-1 pe-2">{{ p.titulo }}</a>
+                {% set badge =
+                  p.estado == 'Publicado' ? 'bg-success' :
+                  (p.estado == 'Pausado' ? 'bg-warning text-dark' :
+                  (p.estado == 'Borrador' ? 'bg-secondary' : 'bg-info text-dark')) %}
+                <span class="badge {{ badge }}">{{ p.estado }}</span>
+              </div>
+
+              <p class="text-muted small mb-3">
+                {{ p.descripcion | slice(0, 160) ~ (p.descripcion|length > 160 ? '…' : '') }}
+              </p>
+
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-cash-coin me-1"></i>${{ p.presupuesto }}
+                </span>
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-clock me-1"></i>{{ p.plazo }} días
+                </span>
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-person me-1"></i>{{ p.cliente }}
+                </span>
+              </div>
+
+              <div class="mb-3" style="min-height: 32px;">
+                {% for t in p.tecnologias|slice(0,6) %}
+                  <span class="badge bg-light text-dark border me-1 mb-1">{{ t }}</span>
+                {% endfor %}
+                {% if p.tecnologias|length > 6 %}
+                  <span class="badge text-bg-secondary">+{{ p.tecnologias|length - 6 }}</span>
+                {% endif %}
+              </div>
+
+              <div class="mt-auto d-flex justify-content-end">
+                <a href="{{ path('proyecto_show', {'id': p.id}) }}" class="btn btn-outline-primary">
+                  <i class="bi bi-eye me-1"></i> Ver
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Tom-Select en tecnologías (requiere que el include use id="select-tecnologias")
+      var techSelect = document.getElementById('select-tecnologias');
+      if (techSelect) {
+        new TomSelect('#select-tecnologias', {
+          plugins: ['remove_button'],
+          create: false,
+          persist: false
+        });
+      }
+
+      // Toggle de vista con persistencia local
+      const btnTable = document.getElementById('btn-view-table');
+      const btnCards = document.getElementById('btn-view-cards');
+      const viewTable = document.getElementById('view-table');
+      const viewCards = document.getElementById('view-cards');
+
+      const key = 'talentodev:project_view';
+      const applyView = (mode) => {
+        if (mode === 'cards') {
+          viewTable.classList.add('d-none');
+          viewCards.classList.remove('d-none');
+          btnCards.classList.add('active');
+          btnTable.classList.remove('active');
+        } else {
+          viewCards.classList.add('d-none');
+          viewTable.classList.remove('d-none');
+          btnTable.classList.add('active');
+          btnCards.classList.remove('active');
+        }
+        localStorage.setItem(key, mode);
+      };
+
+      const saved = localStorage.getItem(key);
+      applyView(saved === 'cards' ? 'cards' : 'table');
+
+      btnTable?.addEventListener('click', () => applyView('table'));
+      btnCards?.addEventListener('click', () => applyView('cards'));
+    });
+  </script>
+{% endblock %}

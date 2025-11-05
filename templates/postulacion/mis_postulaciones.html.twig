@@ -1,0 +1,341 @@
+{# templates/postulacion/mis_postulaciones.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Postulaciones | TalentoDev{% endblock %}
+
+{# -------------------------------------------------------------------- #}
+{#  HOJA DE ESTILOS EXTRA (Tom-Select)                                  #}
+{# -------------------------------------------------------------------- #}
+{% block stylesheets %}
+  {{ parent() }}
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+{# -------------------------------------------------------------------- #}
+{#  ENCABEZADO + CTA + TOGGLE DE VISTAS                                 #}
+{# -------------------------------------------------------------------- #}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <div>
+    <h2 class="mb-0">Postulaciones</h2>
+    <div class="text-muted small">
+      Encontradas: <span class="fw-semibold">{{ postulaciones|length }}</span>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    {% if is_granted('ROLE_DESARROLLADOR') %}
+      <a href="{{ path('proyectos_disponibles') }}" class="btn btn-primary">
+        <i class="bi bi-search me-1"></i> Buscar proyectos
+      </a>
+    {% endif %}
+
+    <div class="btn-group" role="group" aria-label="Cambiar vista">
+      <button type="button" id="btn-view-table" class="btn btn-outline-secondary active"
+              title="Vista tabla"><i class="bi bi-table"></i></button>
+      <button type="button" id="btn-view-cards" class="btn btn-outline-secondary"
+              title="Vista tarjetas"><i class="bi bi-grid-3x3-gap"></i></button>
+    </div>
+  </div>
+</div>
+
+{# -------------------------------------------------------------------- #}
+{#  FILTROS                                                             #}
+{# -------------------------------------------------------------------- #}
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <form class="row g-2 align-items-end" method="get" action="{{ path(app.request.attributes.get('_route')) }}">
+      <div class="col-12 col-md-4">
+        <label class="form-label small mb-1">Búsqueda</label>
+        <input type="search" name="q" value="{{ q|default('') }}" class="form-control"
+               placeholder="Título o descripción">
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label small mb-1">Tecnologías</label>
+        {% include 'proyecto/components/tecnologias_select.html.twig' with {
+          id: 'select-tecnologias',
+          name: 'tecnologias[]',
+          selected: tecnologias|default([])
+        } %}
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">Estado postulación</label>
+        <select class="form-select" name="estado">
+          <option value="" {{ estado|default('') == '' ? 'selected' }}>Todos</option>
+          {% for e in ['Pendiente','Aceptada','Rechazada','Cancelada'] %}
+            <option value="{{ e }}" {{ estado|default('') == e ? 'selected' }}>{{ e }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small mb-1">Ordenar</label>
+        <select class="form-select" name="sort">
+          <option value="" {{ sort|default('') == '' ? 'selected' }}>Más recientes</option>
+          <option value="monto_desc" {{ sort == 'monto_desc' ? 'selected' }}>Mayor monto</option>
+          <option value="monto_asc"  {{ sort == 'monto_asc'  ? 'selected' }}>Menor monto</option>
+          <option value="plazo_asc"  {{ sort == 'plazo_asc'  ? 'selected' }}>Menor plazo</option>
+          <option value="plazo_desc" {{ sort == 'plazo_desc' ? 'selected' }}>Mayor plazo</option>
+        </select>
+      </div>
+
+      <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+        <button class="btn btn-outline-primary" type="submit">
+          <i class="bi bi-funnel me-1"></i> Aplicar filtros
+        </button>
+        <a href="{{ path(app.request.attributes.get('_route')) }}" class="btn btn-outline-secondary">
+          Limpiar
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# -------------------------------------------------------------------- #}
+{#  RESULTADOS                                                          #}
+{# -------------------------------------------------------------------- #}
+{% if postulaciones is empty %}
+  <div class="alert alert-info d-flex align-items-center" role="alert">
+    <i class="bi bi-search me-2"></i>
+    <div>No se encontraron postulaciones con los filtros aplicados.</div>
+  </div>
+{% else %}
+
+  {# ---------------------- VISTA TABLA ---------------------- #}
+  <div id="view-table">
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-3">Proyecto</th>
+              <th scope="col">Detalles</th>
+              <th scope="col">Tecnologías</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="pe-3 text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for p in postulaciones %}
+            {% set badge =
+              p.estado == 'Aceptada'   ? 'bg-success' :
+              (p.estado == 'Rechazada' ? 'bg-danger'  :
+              (p.estado == 'Cancelada' ? 'bg-secondary' : 'bg-warning text-dark')) %}
+            <tr>
+              <td class="ps-3">
+                <a href="{{ path('proyecto_show', {'id': p.proyecto.id}) }}"
+                   class="fw-semibold text-decoration-none">
+                   {{ p.proyecto.titulo }}
+                </a>
+                <p class="small text-muted mb-0">
+                  {{ p.mensaje|slice(0,120) ~ (p.mensaje|length > 120 ? '…' : '') }}
+                </p>
+              </td>
+
+              <td>
+                <div class="fw-semibold">${{ p.monto }}</div>
+                <div class="small text-muted">
+                  <i class="bi bi-clock me-1"></i>{{ p.plazo }} días
+                </div>
+                <div class="small text-muted">
+                  <i class="bi bi-calendar me-1"></i>{{ p.fecha|date('d M Y') }}
+                </div>
+              </td>
+
+              <td style="min-width:220px;">
+                {% for t in p.proyecto.tecnologias %}
+                  <span class="badge bg-light text-dark border me-1 mb-1">{{ t }}</span>
+                {% endfor %}
+              </td>
+
+              <td><span class="badge {{ badge }}">{{ p.estado }}</span></td>
+
+              {# ----------- DROPDOWN DE ACCIONES ----------- #}
+              <td class="text-end pe-3">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            id="dd-{{ p.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                    Acciones
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dd-{{ p.id }}">
+                    {# ——— Ver ——— #}
+                    <li>
+                        <a class="dropdown-item" href="{{ path('proyecto_show', {'id': p.proyecto.id}) }}">
+                        <i class="bi bi-eye me-1"></i> Ver
+                        </a>
+                    </li>
+
+                    {# ——— Cancelar ——— #}
+                    <li>
+                        <form method="post" action="">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ p.id) }}">
+                        <button class="dropdown-item text-danger" type="submit">
+                            <i class="bi bi-x-circle me-1"></i> Cancelar
+                        </button>
+                        </form>
+                    </li>
+
+                    {# ——— Aceptar ——— #}
+                    <li>
+                        <form method="post" action="">
+                        <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ p.id) }}">
+                        <button class="dropdown-item text-success" type="submit">
+                            <i class="bi bi-check-circle me-1"></i> Aceptar
+                        </button>
+                        </form>
+                    </li>
+
+                    {# ——— Rechazar ——— #}
+                    <li>
+                        <form method="post" action="">
+                        <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ p.id) }}">
+                        <button class="dropdown-item text-danger" type="submit">
+                            <i class="bi bi-x-circle me-1"></i> Rechazar
+                        </button>
+                        </form>
+                    </li>
+                    </ul>
+                </div>
+                </td>
+
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# ---------------------- VISTA TARJETAS --------------------- #}
+  <div id="view-cards" class="d-none">
+    <div class="row g-3">
+      {% for p in postulaciones %}
+        {% set badge =
+          p.estado == 'Aceptada'   ? 'bg-success' :
+          (p.estado == 'Rechazada' ? 'bg-danger'  :
+          (p.estado == 'Cancelada' ? 'bg-secondary' : 'bg-warning text-dark')) %}
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <a href="{{ path('proyecto_show', {'id': p.proyecto.id}) }}"
+                   class="h6 text-decoration-none mb-0 flex-grow-1 pe-2">
+                   {{ p.proyecto.titulo }}
+                </a>
+                <span class="badge {{ badge }}">{{ p.estado }}</span>
+              </div>
+
+              <p class="text-muted small mb-3">
+                {{ p.mensaje|slice(0,160) ~ (p.mensaje|length > 160 ? '…' : '') }}
+              </p>
+
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-cash-coin me-1"></i>${{ p.monto }}
+                </span>
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-clock me-1"></i>{{ p.plazo }} días
+                </span>
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-calendar me-1"></i>{{ p.fecha|date('d M') }}
+                </span>
+              </div>
+
+              <div class="mb-3" style="min-height:32px;">
+                {% for t in p.proyecto.tecnologias|slice(0,6) %}
+                  <span class="badge bg-light text-dark border me-1 mb-1">{{ t }}</span>
+                {% endfor %}
+                {% if p.proyecto.tecnologias|length > 6 %}
+                  <span class="badge text-bg-secondary">
+                    +{{ p.proyecto.tecnologias|length - 6 }}
+                  </span>
+                {% endif %}
+              </div>
+
+              {# ----------- DROPDOWN DE ACCIONES ----------- #}
+              <div class="mt-auto d-flex justify-content-end">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                            id="dd-card-{{ p.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                    Acciones
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dd-card-{{ p.id }}">
+                    <li>
+                        <a class="dropdown-item" href="{{ path('proyecto_show', {'id': p.proyecto.id}) }}">
+                        <i class="bi bi-eye me-1"></i> Ver
+                        </a>
+                    </li>
+                    <li>
+                        <form method="post" action="">
+                        <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ p.id) }}">
+                        <button class="dropdown-item text-danger" type="submit">
+                            <i class="bi bi-x-circle me-1"></i> Cancelar
+                        </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form method="post" action="">
+                        <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ p.id) }}">
+                        <button class="dropdown-item text-success" type="submit">
+                            <i class="bi bi-check-circle me-1"></i> Aceptar
+                        </button>
+                        </form>
+                    </li>
+                    <li>
+                        <form method="post" action="">
+                        <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ p.id) }}">
+                        <button class="dropdown-item text-danger" type="submit">
+                            <i class="bi bi-x-circle me-1"></i> Rechazar
+                        </button>
+                        </form>
+                    </li>
+                    </ul>
+                </div>
+                </div>
+
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      /* ---------- Tom-Select en combo de tecnologías ---------- */
+      const techSel = document.getElementById('select-tecnologias');
+      if (techSel) new TomSelect('#select-tecnologias', { plugins:['remove_button'] });
+
+      /* ---------- Persistencia de vista tabla / tarjetas ---------- */
+      const btnTable  = document.getElementById('btn-view-table');
+      const btnCards  = document.getElementById('btn-view-cards');
+      const viewTable = document.getElementById('view-table');
+      const viewCards = document.getElementById('view-cards');
+      const key = 'talentodev:postulacion_view';
+
+      const apply = mode => {
+        if (mode === 'cards') {
+          viewTable.classList.add('d-none');  viewCards.classList.remove('d-none');
+          btnCards.classList.add('active');   btnTable.classList.remove('active');
+        } else {
+          viewCards.classList.add('d-none');  viewTable.classList.remove('d-none');
+          btnTable.classList.add('active');   btnCards.classList.remove('active');
+        }
+        localStorage.setItem(key, mode);
+      };
+
+      apply(localStorage.getItem(key) === 'cards' ? 'cards' : 'table');
+      btnTable.addEventListener('click', () => apply('table'));
+      btnCards.addEventListener('click', () => apply('cards'));
+    });
+  </script>
+{% endblock %}
+
+

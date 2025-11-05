@@ -84,11 +84,18 @@ class PostulacionController extends AbstractController
     public function postularse(Request $request, int $id): Response
     {
         // Datos mínimos del proyecto (mock) para el formulario
-        $proyecto = ['id' => $id, 'titulo' => "Proyecto #$id (mock)"];
+         $proyecto = [
+            'id'          => $id,
+            'titulo'      => "Proyecto #$id",
+            'presupuesto' => 1200,                       
+            'plazo'       => 14,                         
+            'estado'      => 'Publicado',               
+            'tecnologias' => ['Symfony','Bootstrap'],    
+        ];
 
         if ($request->isMethod('POST')) {
             // Guardado MOCK
-            $this->addFlash('success', 'Postulación enviada (mock).');
+            $this->addFlash('success', 'Postulación enviada.');
             return $this->redirectToRoute('postulacion_mis');
         }
 
@@ -98,22 +105,34 @@ class PostulacionController extends AbstractController
     }
 
     // Dos rutas apuntan al mismo método: renderiza "mías" o "recibidas" según la ruta
-    #[Route('/postulaciones/mias', name: 'postulacion_mis', methods: ['GET'])]
+    #[Route('/postulaciones/mias',      name: 'postulacion_mis',       methods: ['GET'])]
     #[Route('/postulaciones/recibidas', name: 'postulacion_recibidas', methods: ['GET'])]
     public function listarPostulaciones(Request $request): Response
     {
-        $route = (string)$request->attributes->get('_route');
+     
+        $filtros = [
+            'q'           => $request->query->get('q', ''),
+            'estado'      => $request->query->get('estado', ''),
+            'sort'        => $request->query->get('sort', ''),
+            'tecnologias' => $request->query->all('tecnologias'),  
+        ];
 
-        if ($route === 'postulacion_recibidas') {
-            return $this->render('postulacion/recibidas.html.twig', [
-                'items' => $this->mockRecibidas(),
-            ]);
-        }
+       
+        $route = (string) $request->attributes->get('_route');
 
-        // Por defecto: "mías"
-        return $this->render('postulacion/mis_postulaciones.html.twig', [
-            'items' => $this->mockMisPostulaciones(),
-        ]);
+        $template      = $route === 'postulacion_recibidas'
+            ? 'postulacion/recibidas.html.twig'
+            : 'postulacion/mis_postulaciones.html.twig';
+
+        $postulaciones = $route === 'postulacion_recibidas'
+            ? $this->mockRecibidas()
+            : $this->mockMisPostulaciones();
+
+      
+        return $this->render($template, array_merge(
+            $filtros,                          
+            ['postulaciones' => $postulaciones] 
+        ));
     }
 
     #[Route('/postulaciones/{id}/aceptar', name: 'postulacion_aceptar', requirements: ['id' => '\d+'], methods: ['POST'])]

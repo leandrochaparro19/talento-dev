@@ -2,52 +2,276 @@
 {% block title %}{{ proyecto.titulo }} | TalentoDev{% endblock %}
 
 {% block body %}
-<a href="{{ path('proyecto_index') }}" class="btn btn-sm btn-outline-secondary mb-3">← Volver a proyectos</a>
 
-<div class="card p-4 shadow-sm">
-    <div class="d-flex align-items-start gap-3 mb-2">
-        <h3 class="mb-0">{{ proyecto.titulo }}</h3>
-        <span class="badge {{ proyecto.estado == 'Pausado' ? 'bg-warning text-dark' : (proyecto.estado == 'Publicado' ? 'bg-success' : 'bg-secondary') }}">
-            {{ proyecto.estado }}
-        </span>
-        <div class="ms-auto d-flex gap-2">
-            <a href="{{ path('proyecto_edit', {'id': proyecto.id}) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-            <form method="post" action="{{ path('proyecto_pause', {'id': proyecto.id}) }}" class="d-inline">
-                <button class="btn btn-sm btn-outline-warning">Pausar</button>
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <a href="{{ path('proyecto_index') }}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Volver a proyectos
+  </a>
+
+  <div class="d-flex align-items-center gap-2">
+    <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-copy-link" data-bs-toggle="tooltip" data-bs-title="Copiar enlace">
+      <i class="bi bi-link-45deg"></i>
+    </button>
+
+    {# Mostrar acciones si el usuario puede administrar (admin o dueño)
+       También permito forzar con 'can_manage' desde el controlador en el mock #}
+    {# {% set canManage = (can_manage is defined and can_manage)
+        or is_granted('ROLE_ADMIN')
+        or (app.user and proyecto.owner is defined and proyecto.owner and proyecto.owner.id is defined and app.user.id == proyecto.owner.id) %}
+
+    {% if canManage %} #}
+      <div class="btn-group">
+    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-gear"></i> Acciones
+    </button>
+
+    {# Lógica de estado para el badge, movida al inicio para usarla en el header #}
+    {% set badge =
+    proyecto.estado == 'Publicado' ? 'bg-success' :
+    (proyecto.estado == 'Pausado' ? 'bg-warning text-dark' :
+    (proyecto.estado == 'Finalizado' ? 'bg-info text-dark' : 'bg-secondary')) %}
+
+    <ul class="dropdown-menu dropdown-menu-end shadow-lg rounded-3 p-2">
+        
+        {# ESTADO ACTUAL MEJORADO: Compacto en el Header del Dropdown #}
+        <li class="dropdown-header d-flex justify-content-between align-items-center">
+            <span class="text-uppercase small text-muted">Estado actual</span>
+            <span class="badge {{ badge }}">{{ proyecto.estado }}</span>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+
+        {# ACCIONES RÁPIDAS #}
+        <li class="dropdown-header text-uppercase small text-muted pt-0">Gestión</li>
+        <li>
+            <a class="dropdown-item d-flex align-items-start gap-2 rounded" href="{{ path('proyecto_edit', {'id': proyecto.id}) }}">
+                <i class="bi bi-pencil-square fs-6 mt-1"></i>
+                <div>
+                    <div class="fw-semibold">Editar</div>
+                    <div class="small text-muted">Título, descripción y tecnologías</div>
+                </div>
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+        
+        {# CAMBIAR ESTADO #}
+        <li class="dropdown-header text-uppercase small text-muted">Cambiar estado</li>
+
+        {% if proyecto.estado != 'Publicado' %}
+        <li>
+            <form method="post" action="{{ path('proyecto_publish', {'id': proyecto.id}) }}">
+            <button class="dropdown-item d-flex align-items-start gap-2 rounded" type="submit">
+                <i class="bi bi-megaphone fs-6 mt-1"></i>
+                <div>
+                <div class="fw-semibold">Publicar</div>
+                <div class="small text-muted">Hacer visible para desarrolladores</div>
+                </div>
+            </button>
             </form>
-            <a href="{{ path('proyecto_delete', {'id': proyecto.id}) }}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+        </li>
+        {% endif %}
+
+        {% if proyecto.estado != 'Pausado' %}
+        <li>
+            <form method="post" action="{{ path('proyecto_pause', {'id': proyecto.id}) }}">
+            <button class="dropdown-item d-flex align-items-start gap-2 rounded" type="submit">
+                <i class="bi bi-pause-circle fs-6 mt-1"></i>
+                <div>
+                <div class="fw-semibold">Pausar</div>
+                <div class="small text-muted">Detener temporalmente postulaciones</div>
+                </div>
+            </button>
+            </form>
+        </li>
+        {% endif %}
+
+        {% if proyecto.estado != 'Finalizado' %}
+        <li>
+            {# ICONO AÑADIDO: bi-flag-checkered para coherencia con Pausar #}
+            <form method="post" action="{{ path('proyecto_finish', {'id': proyecto.id}) }}">
+            <button class="dropdown-item d-flex align-items-start gap-2 rounded" type="submit">
+                <i class="bi bi-check2-square fs-6 mt-1"></i>
+                <div>
+                <div class="fw-semibold">Finalizar</div>
+                <div class="small text-muted">Marcar como completado</div>
+                </div>
+            </button>
+            </form>
+        </li>
+        {% endif %}
+
+        <li><hr class="dropdown-divider"></li>
+
+        {# ACCIÓN DE PELIGRO #}
+        <li>
+            <button class="dropdown-item d-flex align-items-start gap-2 text-danger rounded"
+                    type="button" data-bs-toggle="modal" data-bs-target="#confirmDelete">
+                <i class="bi bi-trash fs-6 mt-1"></i>
+                <div>
+                <div class="fw-semibold">Eliminar</div>
+                <div class="small">Esta acción no se puede deshacer</div>
+                </div>
+            </button>
+        </li>
+    </ul>
+</div>
+
+{# Modal de confirmación para eliminar (Se mantiene igual) #}
+<div class="modal fade" id="confirmDelete" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Eliminar proyecto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
-    </div>
-
-    <div class="text-muted mb-3 small">
-        Cliente: <strong>{{ proyecto.cliente }}</strong> · Publicado: {{ proyecto.creado }}
-    </div>
-
-    <p class="mb-3">{{ proyecto.descripcion }}</p>
-
-    <div class="mb-3 d-flex flex-wrap gap-2">
-        {% for t in proyecto.tecnologias %}
-            <span class="badge bg-light text-secondary border">{{ t }}</span>
-        {% endfor %}
-    </div>
-
-    <div class="row g-3">
-        <div class="col-6 col-md-3">
-            <div class="card p-3">
-                <div class="small text-muted">Presupuesto</div>
-                <div class="h5 mb-0">${{ proyecto.presupuesto }}</div>
-            </div>
+        <div class="modal-body">
+            ¿Seguro que querés eliminar “{{ proyecto.titulo }}”? Esta acción no se puede deshacer.
         </div>
-        <div class="col-6 col-md-3">
-            <div class="card p-3">
-                <div class="small text-muted">Plazo</div>
-                <div class="h5 mb-0">{{ proyecto.plazo }} días</div>
-            </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <a href="{{ path('proyecto_delete', {'id': proyecto.id}) }}" class="btn btn-danger">
+            <i class="bi bi-trash me-1"></i> Eliminar
+            </a>
         </div>
-    </div>
-
-    <div class="mt-4">
-        <a href="#" class="btn btn-primary">Postularse (mock)</a>
+        </div>
     </div>
 </div>
+
+    {# {% endif %} #}
+  </div>
+</div>
+
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex flex-wrap align-items-start gap-2 mb-2">
+      <h1 class="h4 mb-0 me-2">{{ proyecto.titulo }}</h1>
+
+      {# Estado a la derecha, reemplazando el ID #}
+      {% set badge =
+        proyecto.estado == 'Publicado' ? 'bg-success' :
+        (proyecto.estado == 'Pausado' ? 'bg-warning text-dark' :
+        (proyecto.estado == 'Finalizado' ? 'bg-info text-dark' : 'bg-secondary')) %}
+      <span class="ms-auto badge {{ badge }}">{{ proyecto.estado }}</span>
+    </div>
+
+    <div class="text-muted small mb-3">
+      <i class="bi bi-person me-1"></i><strong>{{ proyecto.cliente }}</strong>
+      <span class="mx-2">•</span>
+      <i class="bi bi-calendar3 me-1"></i>Publicado: {{ proyecto.creado }}
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-lg-8">
+        <p class="mb-3">{{ proyecto.descripcion }}</p>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for t in proyecto.tecnologias %}
+            <span class="badge bg-light text-dark border"><i class="bi bi-code me-1"></i>{{ t }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="card border-0 bg-light-subtle">
+          <div class="card-body">
+            <h2 class="h6 mb-3"><i class="bi bi-clipboard-check me-1"></i> Requisitos y alcance</h2>
+            <ul class="list-unstyled mb-0 small">
+              <li class="d-flex align-items-start mb-2">
+                <i class="bi bi-check2-circle me-2"></i> Entregables acordados según descripción.
+              </li>
+              <li class="d-flex align-items-start mb-2">
+                <i class="bi bi-check2-circle me-2"></i> Comunicación asincrónica y hitos semanales.
+              </li>
+              <li class="d-flex align-items-start">
+                <i class="bi bi-check2-circle me-2"></i> Revisión de código y deploy controlado.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="position-sticky" style="top: 1rem;">
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small">Presupuesto</span>
+                <i class="bi bi-cash-coin"></i>
+              </div>
+              <div class="h5 mb-3">${{ proyecto.presupuesto }}</div>
+
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small">Plazo estimado</span>
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="h6 mb-3">{{ proyecto.plazo }} días</div>
+
+              <div class="d-grid">
+                <a href="#" class="btn btn-primary">
+                  <i class="bi bi-send me-1"></i> Postularse
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="card border-0">
+            <div class="list-group list-group-flush">
+              <div class="list-group-item">
+                <div class="small text-muted mb-1">Cliente</div>
+                <div class="fw-semibold"><i class="bi bi-building me-1"></i>{{ proyecto.cliente }}</div>
+              </div>
+              <div class="list-group-item">
+                <div class="small text-muted mb-1">Estado</div>
+                <span class="badge {{ badge }}">{{ proyecto.estado }}</span>
+              </div>
+              <div class="list-group-item">
+                <div class="small text-muted mb-1">Tecnologías</div>
+                <div class="d-flex flex-wrap gap-1">
+                  {% for t in proyecto.tecnologias|slice(0,6) %}
+                    <span class="badge bg-light text-dark border">{{ t }}</span>
+                  {% endfor %}
+                  {% if proyecto.tecnologias|length > 6 %}
+                    <span class="badge text-bg-secondary">+{{ proyecto.tecnologias|length - 6 }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Compartir</span>
+                <div class="btn-group">
+                  <a class="btn btn-sm btn-outline-secondary" id="btn-copy-link-2" data-bs-toggle="tooltip" data-bs-title="Copiar enlace"><i class="bi bi-link-45deg"></i></a>
+                  <a class="btn btn-sm btn-outline-secondary" target="_blank" href="https://wa.me/?text={{ (proyecto.titulo ~ ' - ' ~ app.request.uri)|url_encode }}"><i class="bi bi-whatsapp"></i></a>
+                  <a class="btn btn-sm btn-outline-secondary" target="_blank" href="https://www.linkedin.com/sharing/share-offsite/?url={{ app.request.uri|url_encode }}"><i class="bi bi-linkedin"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 {% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const copyWithTooltip = (el) => {
+        const url = window.location.href;
+        navigator.clipboard?.writeText(url).then(() => {
+          try {
+            const tip = bootstrap.Tooltip.getInstance(el) || new bootstrap.Tooltip(el);
+            el.setAttribute('data-bs-title', '¡Copiado!');
+            tip.show();
+            setTimeout(() => { tip.hide(); el.setAttribute('data-bs-title', 'Copiar enlace'); }, 1200);
+          } catch (e) {}
+        });
+      };
+
+      document.getElementById('btn-copy-link')?.addEventListener('click', function(){ copyWithTooltip(this); });
+      document.getElementById('btn-copy-link-2')?.addEventListener('click', function(){ copyWithTooltip(this); });
+    });
+  </script>
+{% endblock %}
+

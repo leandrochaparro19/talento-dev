@@ -2,32 +2,197 @@
 {% block title %}Postularse a {{ proyecto.titulo }} | TalentoDev{% endblock %}
 
 {% block body %}
-<h2 class="mb-3">Postularse</h2>
-<div class="card p-4 shadow-sm">
-    <div class="mb-3 text-muted small">
-        Proyecto: <a href="{{ path('proyecto_show', {'id': proyecto.id}) }}" class="text-decoration-none">{{ proyecto.titulo }}</a>
+<div class="mb-4 d-flex align-items-center gap-3">
+  <i class="bi bi-send-check fs-2 text-primary"></i>
+  <div>
+    <h2 class="mb-1">Postularse</h2>
+    <div class="text-muted small">
+      Proyecto: <a href="{{ path('proyecto_show', {'id': proyecto.id}) }}" class="text-decoration-none">{{ proyecto.titulo }}</a>
+    </div>
+  </div>
+</div>
+
+<form method="post" class="card border-0 shadow-lg p-4 p-md-5">
+  {# CAMBIO: Se agregó 'g-lg-5' para mayor espaciado en desktop #}
+  <div class="row g-4 g-lg-5"> 
+
+    {# IZQUIERDA: FORMULARIO #}
+    <div class="col-12 col-lg-7">
+      {# CAMBIO: Título de columna modernizado #}
+      <h3 class="h5 text-primary fw-bold mb-4">Tu Propuesta</h3>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label for="monto" class="form-label">Propuesta económica ($) <span class="text-danger">*</span></label>
+          <input type="number" id="monto" name="monto" min="0" class="form-control" placeholder="Ej: 1200" required>
+          <div class="form-text" id="hint-tarifa">Tarifa diaria aprox.: —</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label for="plazo" class="form-label">Plazo estimado (días) <span class="text-danger">*</span></label>
+          <input type="number" id="plazo" name="plazo" min="1" class="form-control" placeholder="Ej: 14" required>
+        </div>
+
+        <div class="col-12">
+          <label for="mensaje" class="form-label">Mensaje al cliente <span class="text-danger">*</span></label>
+          <textarea id="mensaje" name="mensaje" rows="6" maxlength="1200" class="form-control"
+            placeholder="Contá tu enfoque, entregables, experiencia relevante y cómo cumplís con los requisitos…" required></textarea>
+          <div class="d-flex justify-content-between small text-muted mt-1">
+            <span>Recomendación: sé concreto e incluye 2–3 hitos.</span>
+            <span id="msg-count">0/1200</span>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label for="portfolio" class="form-label">URL de portfolio / repositorio (opcional)</label>
+          <input type="url" id="portfolio" name="portfolio" class="form-control" placeholder="https://github.com/usuario / https://mi-portfolio.dev">
+        </div>
+      </div>
     </div>
 
-    <form method="post">
-        <div class="row g-3">
-            <div class="col-12 col-md-6">
-                <label class="form-label">Propuesta económica ($)</label>
-                <input type="number" name="monto" min="0" class="form-control" placeholder="Ej: 1200" required>
-            </div>
-            <div class="col-12 col-md-6">
-                <label class="form-label">Plazo estimado (días)</label>
-                <input type="number" name="plazo" min="1" class="form-control" placeholder="Ej: 14" required>
-            </div>
-            <div class="col-12">
-                <label class="form-label">Mensaje al cliente</label>
-                <textarea name="mensaje" rows="5" class="form-control" placeholder="Contale brevemente tu enfoque, entregables y experiencia relevante." required></textarea>
-            </div>
-        </div>
+    {# DERECHA: RESUMEN Y COMPARATIVA #}
+    <div class="col-12 col-lg-5">
+      {# CAMBIO: Título de columna modernizado #}
+      <h3 class="h5 text-primary fw-bold mb-4">Resumen del Proyecto</h3>
 
-        <div class="d-grid d-sm-flex gap-2 mt-3">
-            <button class="btn btn-primary" type="submit">Enviar postulación</button>
-            <a class="btn btn-outline-secondary" href="{{ path('proyecto_show', {'id': proyecto.id}) }}">Cancelar</a>
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted small">Presupuesto del cliente</span>
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <div class="h5 mb-3">${{ proyecto.presupuesto }}</div>
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted small">Plazo estimado</span>
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <div class="h6 mb-0">{{ proyecto.plazo }} días</div>
         </div>
-    </form>
-</div>
+      </div>
+
+      {% set badge =
+        proyecto.estado == 'Publicado' ? 'bg-success' :
+        (proyecto.estado == 'Pausado' ? 'bg-warning text-dark' :
+        (proyecto.estado == 'Finalizado' ? 'bg-info text-dark' : 'bg-secondary')) %}
+
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Estado</span>
+            <span class="badge {{ badge }}">{{ proyecto.estado }}</span>
+          </div>
+          {% if proyecto.tecnologias is defined and proyecto.tecnologias|length %}
+            <div class="mt-3">
+              <div class="small text-muted mb-1">Tecnologías</div>
+              <div class="d-flex flex-wrap gap-1">
+                {% for t in proyecto.tecnologias|slice(0,6) %}
+                  <span class="badge bg-light text-dark border">{{ t }}</span>
+                {% endfor %}
+                {% if proyecto.tecnologias|length > 6 %}
+                  <span class="badge text-bg-secondary">+{{ proyecto.tecnologias|length - 6 }}</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {# Comparador en vivo contra el presupuesto #}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Tu oferta vs. presupuesto</span>
+            <span id="diff-label" class="small">—</span>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div id="diff-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+          </div>
+          <div class="form-text mt-2">
+            La barra se llena al 100% cuando tu oferta coincide con el presupuesto del cliente.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {# BOTONERA FINAL #}
+  {# (Esta botonera ya estaba con el estilo moderno, no requiere cambios) #}
+  <div class="border-top pt-3 mt-4 d-flex flex-column flex-sm-row gap-2">
+    <button class="btn btn-primary" type="submit">
+      <i class="bi bi-send me-1"></i> Enviar postulación
+    </button>
+    <a class="btn btn-outline-secondary ms-sm-auto" href="{{ path('proyecto_show', {'id': proyecto.id}) }}">
+      Cancelar
+    </a>
+  </div>
+</form>
 {% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const presupuesto = {{ proyecto.presupuesto|default(0) }};
+      const plazoProj   = {{ proyecto.plazo|default(0) }};
+      const montoEl     = document.getElementById('monto');
+      const plazoEl     = document.getElementById('plazo');
+      const tarifaHint  = document.getElementById('hint-tarifa');
+      const diffBar     = document.getElementById('diff-bar');
+      const diffLabel   = document.getElementById('diff-label');
+      const msgEl       = document.getElementById('mensaje');
+      const msgCount    = document.getElementById('msg-count');
+
+      function updateTarifa() {
+        const m = parseFloat(montoEl.value);
+        const d = parseFloat(plazoEl.value);
+        if (!isNaN(m) && !isNaN(d) && d > 0) {
+          const v = Math.round((m / d) * 100) / 100;
+          tarifaHint.textContent = 'Tarifa diaria aprox.: $' + v.toLocaleString();
+        } else {
+          tarifaHint.textContent = 'Tarifa diaria aprox.: —';
+        }
+      }
+
+      function updateComparador() {
+        const m = parseFloat(montoEl.value);
+        if (!presupuesto || isNaN(m) || m <= 0) {
+          diffBar.style.width = '0%';
+          diffBar.className = 'progress-bar';
+          diffLabel.textContent = '—';
+          return;
+        }
+        let pct = Math.min(100, Math.round((m / presupuesto) * 100));
+        diffBar.style.width = pct + '%';
+
+        // Color según diferencia
+        const diff = (m - presupuesto) / presupuesto; // proporción
+        let cls = 'progress-bar';
+        if (Math.abs(diff) <= 0.1) cls += ' bg-success';
+        else if (diff < 0) cls += ' bg-info';
+        else if (diff <= 0.25) cls += ' bg-warning';
+        else cls += ' bg-danger';
+        diffBar.className = cls;
+
+        // Etiqueta
+        const signo = diff > 0 ? '+' : '';
+        diffLabel.textContent = `${signo}${Math.round(diff*100)}% vs presupuesto`;
+      }
+
+      function updateMsgCount() {
+        msgCount.textContent = `${msgEl.value.length}/1200`;
+      }
+
+      montoEl?.addEventListener('input', () => { updateTarifa(); updateComparador(); });
+      plazoEl?.addEventListener('input', () => { updateTarifa(); });
+      msgEl?.addEventListener('input', updateMsgCount);
+
+      // Inicial
+      if (plazoProj && !plazoEl.value) plazoEl.value = plazoProj;
+      updateTarifa();
+      updateComparador();
+      updateMsgCount();
+    });
+  </script>
+{% endblock %}
+

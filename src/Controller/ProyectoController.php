@@ -57,6 +57,39 @@ class ProyectoController extends AbstractController
                 'cliente' => 'InHouse',
                 'creado' => '2025-10-25',
             ],
+            [
+                'id' => 105,
+                'titulo' => 'Plataforma de E-learning',
+                'descripcion' => 'Desarrollo completo de una plataforma para cursos en línea con módulos de pago y seguimiento de progreso.',
+                'tecnologias' => ['Vue.js', 'Django', 'PostgreSQL', 'Stripe'],
+                'estado' => 'Finalizado',
+                'presupuesto' => 5500,
+                'plazo' => 90,
+                'cliente' => 'Academia Digital S.A.',
+                'creado' => '2024-03-10',
+            ],
+            [
+                'id' => 106,
+                'titulo' => 'Sistema de Gestión de Inventario',
+                'descripcion' => 'Aplicación web para el control y la trazabilidad de stock en múltiples almacenes.',
+                'tecnologias' => ['Angular', 'Spring Boot', 'MySQL'],
+                'estado' => 'Finalizado',
+                'presupuesto' => 3200,
+                'plazo' => 50,
+                'cliente' => 'Logística Express',
+                'creado' => '2025-01-15',
+            ],
+            [
+                'id' => 107,
+                'titulo' => 'App Móvil de Reserva de Turnos',
+                'descripcion' => 'Aplicación nativa para iOS y Android que permite a los usuarios reservar citas en servicios de salud y belleza.',
+                'tecnologias' => ['Flutter', 'Firebase', 'Node.js'],
+                'estado' => 'En Proceso',
+                'presupuesto' => 4100,
+                'plazo' => 75,
+                'cliente' => 'Citas Al Instante S.R.L.',
+                'creado' => '2025-09-01',
+            ],
         ];
     }
 
@@ -68,7 +101,7 @@ class ProyectoController extends AbstractController
         $estado = (string) $request->query->get('estado', '');
         $min = (int) $request->query->get('presupuesto_min', 0);
         $max = (int) $request->query->get('presupuesto_max', 0);
-
+        $sort   = (string) $request->query->get('sort', '');
         $items = $this->mockProyectos();
 
         // Filtrado básico (mock)
@@ -86,12 +119,26 @@ class ProyectoController extends AbstractController
             return true;
         });
 
+        // Orden
+        if ($sort) {
+            usort($filtered, function ($a, $b) use ($sort) {
+                return match ($sort) {
+                    'presupuesto_desc' => $b['presupuesto'] <=> $a['presupuesto'],
+                    'presupuesto_asc'  => $a['presupuesto'] <=> $b['presupuesto'],
+                    'plazo_asc'        => $a['plazo']       <=> $b['plazo'],
+                    'plazo_desc'       => $b['plazo']       <=> $a['plazo'],
+                    default            => 0,
+                };
+            });
+        }
+
         return $this->render('proyecto/index.html.twig', [
             'q' => $q,
             'tecnologias' => $tec,
             'estado' => $estado,
             'presupuesto_min' => $min ?: '',
             'presupuesto_max' => $max ?: '',
+            'sort' => $sort,
             'proyectos' => $filtered,
         ]);
     }
@@ -152,6 +199,12 @@ class ProyectoController extends AbstractController
             'presupuesto' => 800,
             'plazo' => 14,
             'estado' => 'Publicado',
+            'alcance_items' => [
+                'Reunión de kick-off y plan de hitos',
+                'Catálogo con filtros y paginación',
+                'Deploy en entorno de prueba con checklist',
+                'Documentación técnica y handover',
+            ],
         ];
 
         if ($request->isMethod('POST')) {
@@ -181,6 +234,13 @@ class ProyectoController extends AbstractController
     public function pauseProyecto(int $id): Response
     {
         $this->addFlash('success', "Proyecto #$id pausado (mock).");
+        return $this->redirectToRoute('proyecto_show', ['id' => $id]);
+    }
+
+    #[Route('/proyectos/{id}/finalizar', name: 'proyecto_finish', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function finalizarProyecto(int $id): Response
+    {
+        $this->addFlash('success', "Proyecto #$id finalizado.");
         return $this->redirectToRoute('proyecto_show', ['id' => $id]);
     }
 }

@@ -1,51 +1,245 @@
 {% extends 'base.html.twig' %}
 {% block title %}Editar proyecto | TalentoDev{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
+{% endblock %}
+
 {% block body %}
-<h2 class="mb-3">Editar proyecto</h2>
+<div class="mb-4 d-flex align-items-center gap-3">
+  <i class="bi bi-pencil-square fs-2 text-primary"></i>
+  <div>
+    <h2 class="mb-1">Editar proyecto</h2>
+    <div class="text-muted small">Actualizá los datos, requisitos y detalles de tu publicación.</div>
+  </div>
+</div>
 
-<form method="post" class="card p-4 shadow-sm">
-    <div class="mb-3">
-        <label for="titulo" class="form-label">Título</label>
-        <input type="text" id="titulo" name="titulo" class="form-control" required value="{{ proyecto.titulo }}">
-    </div>
+<form method="post" class="card border-0 shadow-lg p-4 p-md-5">
+  <div class="row g-4 g-lg-5"> {# CAMBIO: Aumenté el 'gap' en pantallas grandes #}
+    <div class="col-12 col-lg-7">
 
-    <div class="mb-3">
-        <label for="descripcion" class="form-label">Descripción</label>
-        <textarea id="descripcion" name="descripcion" class="form-control" rows="5" required>{{ proyecto.descripcion }}</textarea>
-    </div>
+      {# CAMBIO: Título de la columna izquierda #}
+      <h3 class="h5 text-primary fw-bold mb-4">Detalles del Proyecto</h3>
 
-    <div class="mb-3">
-        <label class="form-label">Tecnologías</label>
-        {% include 'proyecto/components/tecnologias_select.html.twig' with {
-            name: 'tecnologias[]',
-            selected: proyecto.tecnologias
-        } %}
-    </div>
+      <div class="mb-3">
+        <label for="titulo" class="form-label">Título <span class="text-danger">*</span></label>
+        <input type="text" id="titulo" name="titulo" class="form-control form-control-lg" required
+               value="{{ proyecto.titulo }}" maxlength="80" placeholder="Ej: Plataforma de reservas online" autofocus>
+      </div>
 
-    <div class="row g-2 mb-3">
-        <div class="col-6">
-            <label class="form-label">Presupuesto ($)</label>
-            <input type="number" name="presupuesto" class="form-control" min="0" required value="{{ proyecto.presupuesto }}">
+      <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="5" required
+                  maxlength="1200" placeholder="Breve resumen del proyecto, funcionalidades clave, objetivo principal..."
+                  oninput="document.getElementById('desc-count').innerText=this.value.length+'/1200';">{{ proyecto.descripcion }}</textarea>
+        <div class="form-text text-end small">
+          <span id="desc-count">{{ proyecto.descripcion|length }}/1200</span>
         </div>
-        <div class="col-6">
-            <label class="form-label">Plazo (días)</label>
-            <input type="number" name="plazo" class="form-control" min="1" required value="{{ proyecto.plazo }}">
-        </div>
-    </div>
+      </div>
 
-    <div class="mb-3">
-        <label class="form-label">Estado</label>
-        <select name="estado" class="form-select">
-            {% for e in ['Borrador','Publicado','Pausado','Finalizado'] %}
-                <option value="{{ e }}" {{ proyecto.estado == e ? 'selected' }}>{{ e }}</option>
+      {# Separador visual #}
+      <hr class="my-4">
+
+      {# REQUISITOS Y ALCANCE: LISTA DINÁMICA #}
+      <div class="mb-3">
+        {# CAMBIO: Título de sección resaltado #}
+        <label class="form-label fw-semibold text-dark">Requisitos y alcance</label>
+
+        {% set alcanceItems = proyecto.alcance_items is defined
+          ? proyecto.alcance_items
+          : (proyecto.alcance is iterable ? proyecto.alcance : (proyecto.alcance ? [proyecto.alcance] : [])) %}
+
+        <div id="alcance-list" class="list-group">
+          {% if alcanceItems|length > 0 %}
+            {% for item in alcanceItems %}
+              <div class="list-group-item d-flex align-items-start gap-2 alcance-item">
+                <i class="bi bi-check2-circle mt-2 text-success"></i>
+                <input type="text" name="alcance[]" class="form-control" value="{{ item }}"
+                       placeholder="Ej.: Entregar documentación técnica completa">
+                <div class="btn-group ms-2">
+                  <button class="btn btn-sm btn-outline-secondary move-up" type="button" title="Subir">
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary move-down" type="button" title="Bajar">
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger remove-item" type="button" title="Quitar">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </div>
             {% endfor %}
-        </select>
+          {% else %}
+            <div class="list-group-item d-flex align-items-start gap-2 alcance-item">
+              <i class="bi bi-check2-circle mt-2 text-success"></i>
+              <input type="text" name="alcance[]" class="form-control"
+                     placeholder="Ej.: Entregables, criterios de aceptación, etapas…">
+              <div class="btn-group ms-2">
+                <button class="btn btn-sm btn-outline-secondary move-up" type="button" title="Subir">
+                  <i class="bi bi-arrow-up"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary move-down" type="button" title="Bajar">
+                  <i class="bi bi-arrow-down"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger remove-item" type="button" title="Quitar">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-end mt-2">
+          <button type="button" id="add-alcance" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Agregar ítem
+          </button>
+        </div>
+
+        <template id="tpl-alcance-item">
+          <div class="list-group-item d-flex align-items-start gap-2 alcance-item">
+            <i class="bi bi-check2-circle mt-2 text-success"></i>
+            <input type="text" name="alcance[]" class="form-control"
+                   placeholder="Ej.: Reunión de kick-off y plan de hitos">
+            <div class="btn-group ms-2">
+              <button class="btn btn-sm btn-outline-secondary move-up" type="button" title="Subir">
+                <i class="bi bi-arrow-up"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary move-down" type="button" title="Bajar">
+                <i class="bi bi-arrow-down"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger remove-item" type="button" title="Quitar">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <div class="form-text">
+          <i class="bi bi-info-circle me-1"></i> Agregá tantos ítems como necesites; podés reordenarlos o quitarlos.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="select-tecnologias" class="form-label fw-semibold text-dark">Tecnologías <span class="text-danger">*</span></label>
+        {% include 'proyecto/components/tecnologias_select.html.twig' with {
+          id: 'select-tecnologias',
+          name: 'tecnologias[]',
+          selected: proyecto.tecnologias
+        } %}
+      </div>
+
     </div>
 
-    <div class="d-grid d-sm-flex gap-2">
-        <button class="btn btn-primary" type="submit">Guardar cambios</button>
-        <a href="{{ path('proyecto_show', {'id': proyecto.id}) }}" class="btn btn-outline-secondary">Cancelar</a>
+    <div class="col-12 col-lg-5">
+      {# CAMBIO: Título de la columna derecha #}
+      <h3 class="h5 text-primary fw-bold mb-4">Condiciones y Estado</h3>
+
+      <div class="mb-3">
+        <label class="form-label">Presupuesto ($) <span class="text-danger">*</span></label>
+        <input type="number" name="presupuesto" class="form-control" min="0" required
+               value="{{ proyecto.presupuesto }}" placeholder="Monto estimado">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Plazo (días) <span class="text-danger">*</span></label>
+        <input type="number" name="plazo" class="form-control" min="1" required
+               value="{{ proyecto.plazo }}" placeholder="Duración aproximada">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Estado <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <select name="estado" class="form-select" id="estado" aria-label="Estado del proyecto">
+            {% for e in ['Borrador','Publicado','Pausado','Finalizado'] %}
+              <option value="{{ e }}" {{ proyecto.estado == e ? 'selected' }}>{{ e }}</option>
+            {% endfor %}
+          </select>
+          <span class="input-group-text bg-transparent border-0 ps-2">
+            {% set badge =
+              proyecto.estado == 'Publicado' ? 'bg-success' :
+              (proyecto.estado == 'Pausado' ? 'bg-warning text-dark' :
+              (proyecto.estado == 'Finalizado' ? 'bg-info text-dark' : 'bg-secondary')) %}
+            <span id="badge-estado" class="badge {{ badge }}">{{ proyecto.estado }}</span>
+          </span>
+        </div>
+      </div>
     </div>
+  </div>
+
+  {# BOTONERA FINAL #}
+  {# CAMBIO: Se eliminó 'justify-content-end' y se agregó 'ms-sm-auto' al link 'Cancelar' #}
+  <div class="border-top pt-3 mt-4 d-flex flex-column flex-sm-row gap-2">
+    <button class="btn btn-primary" type="submit">
+      <i class="bi bi-save me-1"></i> Guardar cambios
+    </button>
+    <a href="{{ path('proyecto_show', {'id': proyecto.id}) }}" class="btn btn-outline-secondary ms-sm-auto">
+      Cancelar
+    </a>
+  </div>
 </form>
 {% endblock %}
+
+{% block javascripts %}
+  {{ parent() }}
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // TomSelect para tecnologías
+      const tsEl = document.getElementById('select-tecnologias');
+      if (tsEl) {
+        new TomSelect('#select-tecnologias', { plugins:['remove_button'], create:false, persist:false });
+      }
+
+      // Badge dinámico para el estado
+      const estado = document.getElementById('estado');
+      const badge  = document.getElementById('badge-estado');
+      const badgeMap = {
+        'Publicado':'bg-success',
+        'Pausado':'bg-warning text-dark',
+        'Finalizado':'bg-info text-dark',
+        'Borrador':'bg-secondary'
+      };
+      if (estado && badge) {
+        estado.addEventListener('change', function(){
+          badge.className = 'badge ' + (badgeMap[this.value] || 'bg-secondary');
+          badge.textContent = this.value;
+        });
+      }
+
+      // Lista dinámica: alcance
+      const list = document.getElementById('alcance-list');
+      const tpl  = document.getElementById('tpl-alcance-item');
+      const addBtn = document.getElementById('add-alcance');
+
+      function attachHandlers(item){
+        item.querySelector('.remove-item')?.addEventListener('click', () => item.remove());
+        item.querySelector('.move-up')?.addEventListener('click', () => {
+          if (item.previousElementSibling) item.parentNode.insertBefore(item, item.previousElementSibling);
+        });
+        item.querySelector('.move-down')?.addEventListener('click', () => {
+          if (item.nextElementSibling) item.parentNode.insertBefore(item.nextElementSibling, item);
+        });
+        item.querySelector('input')?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') { e.preventDefault(); addItem(); }
+        });
+      }
+
+      function addItem(value=''){
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        const input = node.querySelector('input');
+        if (value) input.value = value;
+        list.appendChild(node);
+        attachHandlers(node);
+        input.focus();
+      }
+
+      // Handlers para existentes
+      list.querySelectorAll('.alcance-item').forEach(attachHandlers);
+      addBtn?.addEventListener('click', () => addItem());
+    });
+  </script>
+{% endblock %}
+
+
+
